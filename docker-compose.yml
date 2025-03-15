@@ -1,0 +1,17 @@
+services:
+  eventsourcing:
+    image: ${DOCKER_REGISTRY-}eventsourcing
+    build:
+      context: .
+      dockerfile: EventSourcing/Dockerfile
+  
+  eventsourcing.database:
+    image: postgres:latest
+    container_name: eventsourcing.database
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
