@@ -1,13 +1,16 @@
 services:
-  eventsourcing:
+  api:
     image: ${DOCKER_REGISTRY-}eventsourcing
     build:
       context: .
-      dockerfile: EventSourcing/Dockerfile
+      dockerfile: Api/Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
   
-  eventsourcing.database:
+  database:
     image: postgres:latest
-    container_name: eventsourcing.database
+    container_name: database
     ports:
       - 5433:5432
     healthcheck:

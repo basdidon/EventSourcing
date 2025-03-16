@@ -41,12 +41,6 @@ builder.Host.UseWolverine(opts =>
 
 var app = builder.Build();
 
-// An endpoint to create a new issue that delegates to Wolverine as a mediator
-//app.MapPost("/issues/create", (CreateIssue body, IMessageBus bus) => bus.InvokeAsync(body));
-
-// An endpoint to assign an issue to an existing user that delegates to Wolverine as a mediator
-//app.MapPost("/issues/assign", (AssignIssue body, IMessageBus bus) => bus.InvokeAsync(body));
-
 app.MapGet("/movies/{id}",  async (Guid id, IMessageBus bus) =>
 {
     var movie = await bus.InvokeAsync<Movie>(new GetMovieByIdQuery(id));
@@ -54,6 +48,7 @@ app.MapGet("/movies/{id}",  async (Guid id, IMessageBus bus) =>
     return movie;
 });
 app.MapPost("/movies", (CreateMovie body, IMessageBus bus) => bus.InvokeAsync(body));
+
 
 // Swashbuckle inclusion
 app.UseSwagger();
