@@ -6,17 +6,19 @@ namespace Api.DTOs
     public class BankAccountTransaction
     {
         public Guid TransactionId { get; set; }
+        public Guid StreamId { get; set; }
         public string TransactionType { get; set; } = string.Empty;
         public decimal BalanceChange { get; set; }
 
         public Guid? SenderId { get; set; }
-        public Guid? ReceiverId { get; set; }
+        public Guid? RecipientId { get; set; }
 
         public static BankAccountTransaction Map(IEvent @event)
         {
             BankAccountTransaction transaction = new()
             {
                 TransactionId = @event.Id,
+                StreamId = @event.StreamId,
                 TransactionType = @event.EventTypeName
             };
 
@@ -37,7 +39,7 @@ namespace Api.DTOs
                 if(transfered.FromAccountId == @event.StreamId)
                 {
                     transaction.BalanceChange = -transfered.Amount;
-                    transaction.ReceiverId = transfered.ToAccountId;
+                    transaction.RecipientId = transfered.ToAccountId;
                 }
                 else if(transfered.ToAccountId == @event.StreamId)
                 {

@@ -1,4 +1,4 @@
 ﻿namespace Api.Events
 {
-    public record AccountClosed();
+    public record AccountClosed(Guid AccountId);
 }

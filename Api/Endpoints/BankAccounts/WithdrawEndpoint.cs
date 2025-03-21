@@ -25,10 +25,12 @@ namespace Api.Endpoints.BankAccounts
             return WolverineContinue.NoProblems;
         }
 
+        [EmptyResponse]
+        [Tags("Accounts")]
         [WolverinePost("/api/accounts/{id}/withdraw")]
-        public static MoneyWithdrawn Withdraw(WithdrawCommand command,[Aggregate("id")] BankAccount _)
+        public static MoneyWithdrawn Withdraw(Guid id,WithdrawCommand command,[Aggregate("id")] BankAccount _)
         {
-            return new MoneyWithdrawn(command.Amount);
+            return new MoneyWithdrawn(id,command.Amount);
         }
     }
 }

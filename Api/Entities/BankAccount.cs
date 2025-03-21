@@ -8,4 +8,11 @@
 
         public decimal Balance { get; set; }
     }
+
+    public class TransferRecord
+    {
+        public Guid SenderId { get; set; }
+        public Guid ReceiverId { get; set; }
+        public decimal Amount { get; set; }
+    }
 }

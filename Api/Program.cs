@@ -1,10 +1,12 @@
-using Api.Commands;
+using Api;
 using Api.DTOs;
 using Api.Entities;
 using Api.Events;
+using Api.Extensions;
 using Api.Projections;
 using Api.Queries;
-using JasperFx.Core;
+using FastEndpoints;
+using FastEndpoints.Swagger;
 using Marten;
 using Marten.Events.Projections;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +15,24 @@ using Weasel.Core;
 using Wolverine;
 using Wolverine.FluentValidation;
 using Wolverine.Http;
-using Wolverine.Marten;
 using Wolverine.Http.FluentValidation;
+using Wolverine.Marten;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// The almost inevitable inclusion of Swashbuckle:)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// controller api with fastEndpoints easier for me :)
+builder.Services
+   .AddFastEndpoints()
+   .SwaggerDocument(o =>
+   {
+       o.MaxEndpointVersion = 1;
+       o.DocumentSettings = s =>
+       {
+           s.DocumentName = "Initial Release";
+           s.Title = "Banking API";
+           s.Version = "v1";
+       };
+   });
 
 // For now, this is enough to integrate Wolverine into
 // your application, but there'll be *many* more
@@ -51,51 +63,62 @@ builder.Host.UseWolverine(opts =>
         }
 
         options.Projections.Add<BankAccountProjection>(ProjectionLifecycle.Inline);
-
+        //options.Projections.Add<BankAccountTransactionsProjection>(ProjectionLifecycle.Inline);
         // Register the Movie document
         options.Schema.For<BankAccount>().Identity(x => x.Id);
     })
     .UseLightweightSessions()
     .IntegrateWithWolverine(); // Ensures session handling is correct\
-    
+
 
     opts.Policies.AutoApplyTransactions();
 });
 
-builder.Services.AddWolverineHttp();
-
 var app = builder.Build();
 
-app.MapGet("/accounts", async (IMessageBus bus,[FromQuery]int page = 1, [FromQuery]int pageSize = 10) =>
+if (app.Environment.IsDevelopment())
+{
+    await app.SeedData();
+}
+
+
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.Options(b => b.AddEndpointFilter<EndpointRequestFilter>());
+    };
+    c.Endpoints.RoutePrefix = "api";
+    c.Versioning.Prefix = "v";
+    c.Versioning.PrependToRoute = true;
+    c.Versioning.DefaultVersion = 1;
+}).UseSwaggerGen();
+
+app.MapGet("/accounts", async (IMessageBus bus, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
 {
     page = int.Max(1, page);
     pageSize = int.Max(1, pageSize);
 
-    return await bus.InvokeAsync<IEnumerable<BankAccount>>(new ListBankAccountsQuery(page,pageSize));
+    return await bus.InvokeAsync<IEnumerable<BankAccount>>(new ListBankAccountsQuery(page, pageSize));
 });
 
-app.MapGet("/accounts/{id}/transactions", async (IMessageBus bus,Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+app.MapGet("/accounts/{id}/transactions", async (IMessageBus bus, Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
 {
     page = int.Max(1, page);
     pageSize = int.Max(1, pageSize);
 
     return await bus.InvokeAsync<IEnumerable<BankAccountTransaction>>(new ListBankAccountTransactionsQuery(id, page, pageSize));
+})
+    .WithTags("Accounts");
 
+app.MapGet("/transactions", async (IMessageBus bus, [FromQuery] int page = 1, [FromQuery] int pageSize = 100) =>
+{
+    page = int.Max(1, page);
+    pageSize = int.Max(1, pageSize);
 
+    return await bus.InvokeAsync<IEnumerable<BankAccountTransaction>>(new AllTransactionsQuery(page, pageSize));
 });
 
-app.MapPost("/accounts", (CreateAccountCommand body, IMessageBus bus)
-    => bus.InvokeAsync<BankAccount>(body));
-
-app.MapPost("/accounts/{id}/deposit", (Guid id, DepositCommand body, IMessageBus bus) 
-    => bus.InvokeAsync(body with { AccountId = id}));
-
-app.MapPost("/accounts/{id}/withdraw", (Guid id, WithdrawCommand body, IMessageBus bus)
-    => bus.InvokeAsync(body with { AccountId = id}));
-
-// Swashbuckle inclusion
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
 

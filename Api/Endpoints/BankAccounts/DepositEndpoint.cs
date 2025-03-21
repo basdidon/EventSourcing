@@ -19,11 +19,12 @@ namespace Api.Endpoints.BankAccounts
     public static class DepositEndpoint
     {
         [EmptyResponse]  // This tells Wolverine that the first "return value" is NOT the response
-        [WolverinePost("/stream/accounts/{id}/deposit")]
-        public static MoneyDeposited Deposit(DepositCommand command, [Aggregate("id")] BankAccount _)
+        [Tags("Accounts")]
+        [WolverinePost("/api/accounts/{id}/deposit")]
+        public static MoneyDeposited Deposit(Guid id,DepositCommand command, [Aggregate("id")] BankAccount _)
         {
             // return new event to stream
-            return new MoneyDeposited(command.Amount);
+            return new MoneyDeposited(id,command.Amount);
         }
     }
 }

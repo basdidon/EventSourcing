@@ -1,4 +1,4 @@
 ﻿namespace Api.Events
 {
-    public record MoneyDeposited(decimal Amount);
+    public record MoneyDeposited(Guid AccountId,decimal Amount);
 }

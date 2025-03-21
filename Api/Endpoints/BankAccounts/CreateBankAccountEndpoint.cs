@@ -16,15 +16,17 @@ namespace Api.Endpoints.BankAccounts
         }
     }
 
+
     public static class CreateBankAccountEndpoint
     {
+        [Tags("Accounts")]
         [WolverinePost("/api/accounts")]
         public static (CreationResponse<Guid>,IStartStream) Create(CreateAccountCommand command)
         {
             var createEvent = new AccountCreated(Guid.NewGuid(), "xxx-xxxxxx-x", command.InitialBalance);
             var start = MartenOps.StartStream<BankAccount>(createEvent);
 
-            var response = new CreationResponse<Guid>("/api/v2/accounts/" + start.StreamId, start.StreamId);
+            var response = new CreationResponse<Guid>("/api/accounts/" + start.StreamId, start.StreamId);
 
             return (response, start);
         }
