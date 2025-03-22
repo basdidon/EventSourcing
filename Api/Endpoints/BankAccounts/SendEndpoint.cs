@@ -1,14 +1,4 @@
-﻿using Api.Commands;
-using Api.Entities;
-using Api.Events;
-using Marten;
-using Marten.Events;
-using Microsoft.AspNetCore.Mvc;
-using Wolverine;
-using Wolverine.Attributes;
-using Wolverine.Http;
-using Wolverine.Http.Marten;
-
+﻿/*
 namespace Api.Endpoints.BankAccounts
 {
 
@@ -72,3 +62,4 @@ namespace Api.Endpoints.BankAccounts
 
     }
 }
+*/

@@ -1,11 +1,6 @@
-﻿using Api.Commands;
-using Api.Entities;
-using Api.Events;
-using Microsoft.AspNetCore.Mvc;
-using Wolverine.Http;
-using Wolverine.Http.Marten;
+﻿using Microsoft.AspNetCore.Mvc;
 using Wolverine.Marten;
-
+/*
 namespace Api.Endpoints.BankAccounts
 {
     public static class WithdrawEndpoint
@@ -34,3 +29,4 @@ namespace Api.Endpoints.BankAccounts
         }
     }
 }
+*/

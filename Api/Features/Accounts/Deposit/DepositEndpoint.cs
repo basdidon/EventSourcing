@@ -1,16 +1,9 @@
 ﻿using FastEndpoints;
 
-namespace Api.Endpoints.Accounts
+namespace Api.Features.Accounts.Deposit
 {
-    public class DepositRequest
-    {
-        [FromClaim]
-        public Guid UserId { get; set; }
-        public Guid AccountId { get; set; }
-        public decimal Amount { get; set; }
-    }
 
-    public class DepositEndpoint:Endpoint<DepositRequest>
+    public class DepositEndpoint : Endpoint<DepositRequest>
     {
         public override void Configure()
         {

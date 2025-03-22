@@ -1,9 +1,7 @@
-﻿using Api.Entities;
-using Marten;
+﻿using Marten;
 using Marten.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
-using Wolverine.Http;
-
+/*
 namespace Api.Endpoints.BankAccounts
 {
     public static class GetBankAccountByIdEndpoint
@@ -17,3 +15,4 @@ namespace Api.Endpoints.BankAccounts
         }
     }
 }
+*/

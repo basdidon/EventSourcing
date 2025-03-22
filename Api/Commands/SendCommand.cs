@@ -1,4 +1,4 @@
 ﻿namespace Api.Commands
 {
-    public record SendCommand(Guid ToAccountId,decimal Amount);
+    public record SendCommand(Guid ToAccountId, decimal Amount);
 }

@@ -3,7 +3,6 @@ using Api.Entities;
 using Api.Events;
 using Api.Queries;
 using Marten;
-using Marten.Events;
 using Marten.Pagination;
 
 namespace Api.Handlers

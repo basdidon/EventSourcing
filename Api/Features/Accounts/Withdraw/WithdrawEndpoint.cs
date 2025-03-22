@@ -1,15 +1,7 @@
 ﻿using FastEndpoints;
 
-namespace Api.Endpoints.Accounts
+namespace Api.Features.Accounts.Withdraw
 {
-    public class WithdrawRequest
-    {
-        [FromClaim]
-        public Guid UserId { get; set; }
-        public Guid AccountId { get; set; }
-        public decimal Amount { get; set; }
-    }
-
     public class WithdrawEndpoint : Endpoint<WithdrawRequest>
     {
         public override void Configure()

@@ -1,12 +1,7 @@
 ﻿using FastEndpoints;
 
-namespace Api.Endpoints.Accounts
+namespace Api.Features.Accounts.ListAccounts
 {
-    public class ListAccountsRequest
-    {
-        [FromClaim]
-        public Guid UserId { get; set; }
-    }
 
     public class ListAccountsEndpoint : Endpoint<ListAccountsRequest>
     {

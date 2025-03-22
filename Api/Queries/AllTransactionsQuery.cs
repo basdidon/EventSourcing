@@ -1,4 +1,4 @@
 ﻿namespace Api.Queries
 {
-    public record AllTransactionsQuery(int Page,int PageSize);
+    public record AllTransactionsQuery(int Page, int PageSize);
 }

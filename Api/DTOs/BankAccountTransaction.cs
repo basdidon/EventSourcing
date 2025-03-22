@@ -36,12 +36,12 @@ namespace Api.DTOs
             }
             else if (@event.Data is MoneyTransfered transfered)
             {
-                if(transfered.FromAccountId == @event.StreamId)
+                if (transfered.FromAccountId == @event.StreamId)
                 {
                     transaction.BalanceChange = -transfered.Amount;
                     transaction.RecipientId = transfered.ToAccountId;
                 }
-                else if(transfered.ToAccountId == @event.StreamId)
+                else if (transfered.ToAccountId == @event.StreamId)
                 {
                     transaction.BalanceChange = transfered.Amount;
                     transaction.SenderId = transfered.FromAccountId;

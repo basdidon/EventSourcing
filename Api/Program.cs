@@ -1,28 +1,30 @@
 using Api;
-using Api.DTOs;
 using Api.Entities;
 using Api.Events;
 using Api.Extensions;
 using Api.Projections;
-using Api.Queries;
 using FastEndpoints;
+using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Marten;
 using Marten.Events.Projections;
-using Microsoft.AspNetCore.Mvc;
 using Oakton;
 using Weasel.Core;
 using Wolverine;
 using Wolverine.FluentValidation;
-using Wolverine.Http;
-using Wolverine.Http.FluentValidation;
 using Wolverine.Marten;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var signingKey = builder.Configuration.GetSection("jwt:signingKey").Value;
+
 // controller api with fastEndpoints easier for me :)
 builder.Services
-   .AddFastEndpoints()
+    .Configure<JwtCreationOptions>(o => o.SigningKey = signingKey!)
+   .AddAuthenticationJwtBearer(s => s.SigningKey = signingKey!)
+   .AddAuthorization()
+   .AddFastEndpoints(
+    )
    .SwaggerDocument(o =>
    {
        o.MaxEndpointVersion = 1;
@@ -82,7 +84,9 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseFastEndpoints(c =>
+app.UseAuthentication()
+    .UseAuthorization()
+    .UseFastEndpoints(c =>
 {
     c.Endpoints.Configurator = ep =>
     {
@@ -93,7 +97,7 @@ app.UseFastEndpoints(c =>
     c.Versioning.PrependToRoute = true;
     c.Versioning.DefaultVersion = 1;
 }).UseSwaggerGen();
-
+/*
 app.MapGet("/accounts", async (IMessageBus bus, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
 {
     page = int.Max(1, page);
@@ -118,14 +122,15 @@ app.MapGet("/transactions", async (IMessageBus bus, [FromQuery] int page = 1, [F
 
     return await bus.InvokeAsync<IEnumerable<BankAccountTransaction>>(new AllTransactionsQuery(page, pageSize));
 });
-
+*/
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
-
+/*
 app.MapWolverineEndpoints(opts =>
 {
     opts.UseFluentValidationProblemDetailMiddleware();
-});
+});*/
+
 // Opt into using Oakton for command line parsing
 // to unlock built in diagnostics and utility tools within
 // your Wolverine application

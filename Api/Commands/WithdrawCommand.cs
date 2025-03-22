@@ -1,4 +1,4 @@
 ﻿namespace Api.Commands
 {
-    public record WithdrawCommand(Guid AccountId,decimal Amount);
+    public record WithdrawCommand(Guid AccountId, decimal Amount);
 }

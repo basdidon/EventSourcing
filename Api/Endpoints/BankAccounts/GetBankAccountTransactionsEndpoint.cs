@@ -1,8 +1,6 @@
-﻿using Api.DTOs;
-using Marten;
+﻿using Marten;
 using Microsoft.AspNetCore.Mvc;
-using Wolverine.Http;
-
+/*
 namespace Api.Endpoints.BankAccounts
 {
     public static class GetBankAccountTransactionsEndpoint
@@ -22,3 +20,4 @@ namespace Api.Endpoints.BankAccounts
         }
     }
 }
+*/

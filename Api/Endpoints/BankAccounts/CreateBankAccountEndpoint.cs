@@ -1,10 +1,4 @@
-﻿using Api.Commands;
-using Api.Entities;
-using Api.Events;
-using FluentValidation;
-using Wolverine.Http;
-using Wolverine.Marten;
-
+﻿/*
 namespace Api.Endpoints.BankAccounts
 {
     public class CreateBankAccountValidator: AbstractValidator<CreateAccountCommand>
@@ -31,4 +25,4 @@ namespace Api.Endpoints.BankAccounts
             return (response, start);
         }
     }
-}
+}*/

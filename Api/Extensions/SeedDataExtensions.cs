@@ -1,7 +1,6 @@
 ﻿using Api.Entities;
 using Api.Events;
 using Marten;
-using Marten.Schema;
 
 namespace Api.Extensions
 {
@@ -15,20 +14,22 @@ namespace Api.Extensions
 
             await store.Advanced.ResetAllData();
 
+            var userId = Guid.Parse("B64C2B02-0D4B-420A-825C-CC42C5CA80CA");
+
             var account1_id = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
-            var account1_created = new AccountCreated(account1_id, "xxx-xxxxxx-x", 1000);
+            var account1_created = new AccountCreated(userId,account1_id, "xxx-xxxxxx-x", 1000);
             var account1_deposit = new MoneyDeposited(account1_id, 500);
 
             var streamId1 = session.Events.StartStream<BankAccount>(account1_id,account1_created, account1_deposit).Id;
 
             var account2_id = Guid.Parse("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB");
-            var account2_created = new AccountCreated(account2_id, "xxx-xxxxxx-x", 1000);
+            var account2_created = new AccountCreated(userId, account2_id, "xxx-xxxxxx-x", 1000);
             var account2_withdrawn = new MoneyWithdrawn(account2_id, 300);
 
             var streamId2 = session.Events.StartStream<BankAccount>(account2_id,account2_created, account2_withdrawn).Id;
 
             var account3_id = Guid.Parse("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC");
-            var account3_created = new AccountCreated(account3_id, "xxx-xxxxxx-x",500);
+            var account3_created = new AccountCreated(userId,account3_id, "xxx-xxxxxx-x",500);
             var account3_withdrawn = new MoneyWithdrawn(account3_id, 500);
             var account3_closed = new AccountClosed(account3_id);
 

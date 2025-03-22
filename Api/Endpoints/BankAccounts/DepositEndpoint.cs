@@ -1,10 +1,5 @@
-﻿using Api.Commands;
-using Api.Entities;
-using Api.Events;
-using FluentValidation;
-using Wolverine.Http;
-using Wolverine.Http.Marten;
-
+﻿using FluentValidation;
+/*
 namespace Api.Endpoints.BankAccounts
 {
     public class DepositValidator : AbstractValidator<DepositCommand>
@@ -27,4 +22,4 @@ namespace Api.Endpoints.BankAccounts
             return new MoneyDeposited(id,command.Amount);
         }
     }
-}
+}*/
