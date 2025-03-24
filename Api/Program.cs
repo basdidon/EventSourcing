@@ -1,7 +1,9 @@
 using Api;
 using Api.Entities;
 using Api.Events;
+using Api.Events.User;
 using Api.Extensions;
+using Api.Features.Accounts.ListAccounts;
 using Api.Features.Users;
 using Api.Features.Users.Auth.RefreshToken;
 using Api.Persistance;
@@ -11,6 +13,7 @@ using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Marten;
 using Marten.Events.Projections;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -62,6 +65,11 @@ builder.Services
            s.Version = "v1";
        };
    });
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+});
 
 // For now, this is enough to integrate Wolverine into
 // your application, but there'll be *many* more
@@ -75,6 +83,7 @@ builder.Host.UseWolverine(opts =>
         // Establish the connection string to your Marten database
         options.Connection(builder.Configuration.GetConnectionString("Marten")!);
 
+        options.Events.AddEventType<UserRegistered>();  
         options.Events.AddEventType<AccountCreated>();
         options.Events.AddEventType<MoneyDeposited>();
         options.Events.AddEventType<MoneyWithdrawn>();
@@ -92,8 +101,10 @@ builder.Host.UseWolverine(opts =>
         }
 
         options.Projections.Add<BankAccountProjection>(ProjectionLifecycle.Inline);
+        options.Projections.Add<UserAccountsProjection>(ProjectionLifecycle.Inline);
         //options.Projections.Add<BankAccountTransactionsProjection>(ProjectionLifecycle.Inline);
         // Register the Movie document
+        options.Schema.For<UserAccounts>().Identity(x => x.UserId);  // required cause index name should be id/Id
         options.Schema.For<BankAccount>().Identity(x => x.Id);
     })
     .UseLightweightSessions()

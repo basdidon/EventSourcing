@@ -1,6 +1,7 @@
 ﻿using Api.Features.Users.Auth.RefreshToken;
 using FastEndpoints;
 using FastEndpoints.Security;
+using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
@@ -12,6 +13,7 @@ namespace Api.Features.Users.Auth.Login
         {
             Post("/login");
             AllowAnonymous();
+            Description(x => x.AutoTagOverride("User"));
         }
 
         public override async Task HandleAsync(LoginRequest req, CancellationToken ct)

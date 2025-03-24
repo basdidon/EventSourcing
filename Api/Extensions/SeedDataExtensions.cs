@@ -1,5 +1,6 @@
 ﻿using Api.Entities;
 using Api.Events;
+using Api.Events.User;
 using Api.Features.Users;
 using Api.Persistance;
 using Marten;
@@ -39,6 +40,10 @@ namespace Api.Extensions
 
             await store.Advanced.ResetAllData();
 
+            UserRegistered userRegistered = new(adminUser.Id);
+            session.Events.StartStream(userRegistered);
+            await session.SaveChangesAsync();
+            /*
             var userId = Guid.Parse("B64C2B02-0D4B-420A-825C-CC42C5CA80CA");
 
             var account1_id = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
@@ -67,7 +72,7 @@ namespace Api.Extensions
             session.Events.Append(streamId1, account1_sent);
             session.Events.Append(streamId2, account1_sent);
             await session.SaveChangesAsync();
-
+            */
         }
     }
 }

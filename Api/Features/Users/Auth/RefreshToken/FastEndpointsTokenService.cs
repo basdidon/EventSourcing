@@ -1,6 +1,7 @@
 ﻿using Api.Persistance;
 using FastEndpoints;
 using FastEndpoints.Security;
+using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Identity;
 
 namespace Api.Features.Users.Auth.RefreshToken
@@ -22,7 +23,9 @@ namespace Api.Features.Users.Auth.RefreshToken
                 x.Endpoint("/user/auth/refresh-token", ep =>
                 {
                     ep.Summary(s => s.Description = "this is the refresh token endpoint");
+                    ep.Description(d => d.AutoTagOverride("User"));
                 });
+               
             });
         }
 

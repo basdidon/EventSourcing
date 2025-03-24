@@ -1,18 +1,20 @@
 ﻿using FastEndpoints;
+using Marten;
 
 namespace Api.Features.Accounts.Deposit
 {
 
-    public class DepositEndpoint : Endpoint<DepositRequest>
+    public class DepositEndpoint(IDocumentSession session) : Endpoint<DepositRequest>
     {
         public override void Configure()
         {
             Post("/accounts/{AccountId}/deposit");
         }
 
-        public override Task HandleAsync(DepositRequest req, CancellationToken ct)
+        public override async Task HandleAsync(DepositRequest req, CancellationToken ct)
         {
-            return base.HandleAsync(req, ct);
+            session.Events.Append(req.AccountId, req.Amount);
+            await session.SaveChangesAsync(ct);
         }
     }
 }
