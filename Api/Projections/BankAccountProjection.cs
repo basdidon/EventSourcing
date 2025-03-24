@@ -15,7 +15,7 @@ namespace Api.Projections
         public static BankAccount Create(AccountCreated e) => new()
         {
             Id = e.AccountId,
-            OwnerId = e.UserId,
+            OwnerId = e.OwnerId,
             AccountNumber = e.AccountNumber,
             Balance = e.InitialBalance
         };

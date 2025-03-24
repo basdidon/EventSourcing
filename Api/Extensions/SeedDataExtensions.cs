@@ -1,6 +1,9 @@
 ﻿using Api.Entities;
 using Api.Events;
+using Api.Features.Users;
+using Api.Persistance;
 using Marten;
+using Microsoft.AspNetCore.Identity;
 
 namespace Api.Extensions
 {
@@ -9,8 +12,30 @@ namespace Api.Extensions
         public static async Task SeedData(this IApplicationBuilder app)
         {
             var scope = app.ApplicationServices.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var session = scope.ServiceProvider.GetRequiredService<IDocumentSession>();
             var store = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
+
+            // Ensure role exists before adding to user
+            var roleExists = await roleManager.RoleExistsAsync("admin");
+            if (!roleExists)
+            {
+                // Create the "admin" role if it doesn't exist
+                var role = new ApplicationRole { Name = "admin" };
+                await roleManager.CreateAsync(role);
+            }
+
+            ApplicationUser adminUser = new()
+            {
+                UserName = "admin",
+            };
+            await userManager.CreateAsync(adminUser, "admin123");
+            await context.SaveChangesAsync();
+            Console.WriteLine($"adminID : {adminUser.Id}");
+            
+            await userManager.AddToRoleAsync(adminUser, "admin");
 
             await store.Advanced.ResetAllData();
 

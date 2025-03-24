@@ -1,4 +1,4 @@
-﻿namespace Api.Features.Authentication.Profile
+﻿namespace Api.Features.Users.Profile
 {
     public class ProfileResponse
     {

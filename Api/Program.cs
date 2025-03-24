@@ -2,12 +2,19 @@ using Api;
 using Api.Entities;
 using Api.Events;
 using Api.Extensions;
+using Api.Features.Users;
+using Api.Features.Users.Auth.RefreshToken;
+using Api.Persistance;
 using Api.Projections;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Marten;
 using Marten.Events.Projections;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Oakton;
 using Weasel.Core;
 using Wolverine;
@@ -16,7 +23,27 @@ using Wolverine.Marten;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var identityDb = builder.Configuration.GetConnectionString("identityDb");
 var signingKey = builder.Configuration.GetSection("jwt:signingKey").Value;
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(identityDb);
+});
+
+builder.Services
+    .AddIdentity<ApplicationUser, ApplicationRole>(options =>
+    {
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireDigit = false;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
+    .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
+
 
 // controller api with fastEndpoints easier for me :)
 builder.Services
@@ -80,11 +107,13 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.EnsureDatabaseCreated<ApplicationDbContext>(resetOnStart: true);
     await app.SeedData();
 }
 
 
-app.UseAuthentication()
+app.UseJwtRevocation<BlacklistChecker>()
+    .UseAuthentication()
     .UseAuthorization()
     .UseFastEndpoints(c =>
 {
