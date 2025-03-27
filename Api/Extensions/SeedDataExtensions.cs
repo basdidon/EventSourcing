@@ -1,78 +1,54 @@
 ﻿using Api.Entities;
+using Api.Enums;
 using Api.Events;
 using Api.Events.User;
+using Api.Features.Accounts.ListAccounts;
 using Api.Features.Users;
 using Api.Persistance;
+using Api.Services;
 using Marten;
 using Microsoft.AspNetCore.Identity;
 
 namespace Api.Extensions
 {
+
     public static class SeedDataExtensions
     {
         public static async Task SeedData(this IApplicationBuilder app)
         {
             var scope = app.ApplicationServices.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleService = scope.ServiceProvider.GetRequiredService<RoleService>();
+            var userService = scope.ServiceProvider.GetRequiredService<UserService>();
             var session = scope.ServiceProvider.GetRequiredService<IDocumentSession>();
             var store = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
 
-            // Ensure role exists before adding to user
-            var roleExists = await roleManager.RoleExistsAsync("admin");
-            if (!roleExists)
-            {
-                // Create the "admin" role if it doesn't exist
-                var role = new ApplicationRole { Name = "admin" };
-                await roleManager.CreateAsync(role);
-            }
-
-            ApplicationUser adminUser = new()
-            {
-                UserName = "admin",
-            };
-            await userManager.CreateAsync(adminUser, "admin123");
-            await context.SaveChangesAsync();
-            Console.WriteLine($"adminID : {adminUser.Id}");
-            
-            await userManager.AddToRoleAsync(adminUser, "admin");
-
+            // reset events and documents
             await store.Advanced.ResetAllData();
 
-            UserRegistered userRegistered = new(adminUser.Id);
-            session.Events.StartStream(userRegistered);
-            await session.SaveChangesAsync();
-            /*
-            var userId = Guid.Parse("B64C2B02-0D4B-420A-825C-CC42C5CA80CA");
+            // seed roles
+            await roleService.CreateRolesAsync([..Enum.GetNames<Roles>()]);
 
-            var account1_id = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA");
-            var account1_created = new AccountCreated(userId,account1_id, "xxx-xxxxxx-x", 1000);
-            var account1_deposit = new MoneyDeposited(account1_id, 500);
+            // SEED USERS
+            // Admin
+            var admin = await userService.CreateUser("admin","admin123",Roles.Admin);
 
-            var streamId1 = session.Events.StartStream<BankAccount>(account1_id,account1_created, account1_deposit).Id;
+            // Teller
+            var teller = await userService.CreateUser("teller", "teller123", Roles.Teller);
 
-            var account2_id = Guid.Parse("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB");
-            var account2_created = new AccountCreated(userId, account2_id, "xxx-xxxxxx-x", 1000);
-            var account2_withdrawn = new MoneyWithdrawn(account2_id, 300);
+            // Customers
+            var cust01 = await userService.CreateUser("customer01", "customer01",Roles.Customer);
+            var cust02 = await userService.CreateUser("customer02", "customer02",Roles.Customer);
 
-            var streamId2 = session.Events.StartStream<BankAccount>(account2_id,account2_created, account2_withdrawn).Id;
-
-            var account3_id = Guid.Parse("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC");
-            var account3_created = new AccountCreated(userId,account3_id, "xxx-xxxxxx-x",500);
-            var account3_withdrawn = new MoneyWithdrawn(account3_id, 500);
-            var account3_closed = new AccountClosed(account3_id);
-
-            session.Events.StartStream<BankAccount>(account3_id,account3_created,account3_withdrawn,account3_closed);
+            // SEED TRANSACTIONS
+            // teller create account for customers
+            var account1_id = Guid.NewGuid();
+            var account1_created = new AccountCreated(account1_id, teller.Id, cust01.Id, "xxx-xxxxxx-x", 1000);
+            var account2_withdrawn = new MoneyWithdrawn(account1_id, teller.Id, cust01.Id, 300);
+            var account1_deposited = new MoneyDeposited(account1_id, teller.Id, cust01.Id, 800);
+            session.Events.StartStream<BankAccount>(account1_id,account1_created,account2_withdrawn,account1_deposited);
 
             await session.SaveChangesAsync();
-
-            // sent
-            var account1_sent = new MoneyTransfered(account1_id, account2_id, 500);
-            session.Events.Append(streamId1, account1_sent);
-            session.Events.Append(streamId2, account1_sent);
-            await session.SaveChangesAsync();
-            */
         }
     }
 }

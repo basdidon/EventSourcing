@@ -18,8 +18,8 @@ namespace Api.Features.Users.Auth.RefreshToken
 
             Setup(x =>
             {
-                x.AccessTokenValidity = TimeSpan.FromMinutes(1);
-                x.RefreshTokenValidity = TimeSpan.FromHours(1);
+                x.AccessTokenValidity = TimeSpan.FromMinutes(30);
+                x.RefreshTokenValidity = TimeSpan.FromDays(7);
                 x.Endpoint("/user/auth/refresh-token", ep =>
                 {
                     ep.Summary(s => s.Description = "this is the refresh token endpoint");

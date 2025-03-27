@@ -28,6 +28,7 @@ namespace Api.Features.Users.Auth.Login
                 {
                     u.Roles.AddRange(roles);
                     u.Claims.Add(new Claim("UserId", user.Id.ToString()));
+                    u.Claims.Add(new Claim("Username", user.UserName ?? string.Empty));
                 });
             }
             else

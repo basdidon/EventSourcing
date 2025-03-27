@@ -1,4 +1,6 @@
-﻿using FastEndpoints;
+﻿using Api.Entities;
+using Api.Events;
+using FastEndpoints;
 using Marten;
 
 namespace Api.Features.Accounts.Deposit
@@ -9,11 +11,15 @@ namespace Api.Features.Accounts.Deposit
         public override void Configure()
         {
             Post("/accounts/{AccountId}/deposit");
+            Roles("Teller","Admin");
         }
 
         public override async Task HandleAsync(DepositRequest req, CancellationToken ct)
         {
-            session.Events.Append(req.AccountId, req.Amount);
+            var stream = await session.Events.FetchForWriting<BankAccount>(req.AccountId, ct);
+            var ownerId = stream.Aggregate.OwnerId;
+
+            stream.AppendOne(new MoneyDeposited(req.AccountId, req.UserId, ownerId, req.Amount));
             await session.SaveChangesAsync(ct);
         }
     }

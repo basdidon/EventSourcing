@@ -6,6 +6,8 @@ namespace Api.Features.Accounts.CreateAccount
     {
         [FromClaim]
         public Guid UserId { get; set; }
+
+        public Guid CustomerId { get; set; }
         public decimal InitialBalance { get; set; } = 0;
     }
 }

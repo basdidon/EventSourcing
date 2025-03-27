@@ -14,7 +14,7 @@ namespace Api.Features.Accounts.ListAccounts
     public class UserAccounts
     {
         public Guid UserId { get; set; }
-        public Dictionary<Guid, Account> AccountsBalance { get; set; } = [];
+        public List<Account> Accounts { get; set; } = [];
     }
 
     public class UserAccountsProjection : MultiStreamProjection<UserAccounts, Guid>
@@ -22,24 +22,22 @@ namespace Api.Features.Accounts.ListAccounts
         public UserAccountsProjection()
         {
             Identity<UserEvent>(x => x.UserId);
-            //Identity<UserRegistered>(x=> x.UserId);
-            //Identity<AccountCreated>(x => x.OwnerId);
-            //Identity<AccountClosed>(x => x.OwnerId);
-            //Identity<MoneyDeposited>(x => x.OwnerId);
-            //Identity<MoneyWithdrawn>(x => x.OwnerId);
+            /*Identity<UserRegistered>(x => x.UserId);
+            Identity<AccountCreated>(x => x.OwnerId);
+            Identity<AccountClosed>(x => x.OwnerId);
+            Identity<MoneyDeposited>(x => x.OwnerId);
+            Identity<MoneyWithdrawn>(x => x.OwnerId);*/
             Identities<MoneyTransfered>(x => [x.SenderId, x.RecipientId]);
         }
 
-        public UserAccounts Create(UserRegistered e)
-        => new()
+        public void Apply(UserRegistered e, UserAccounts view)
         {
-            UserId = e.UserId
-        };
+            view.UserId = e.UserId;
+        }
 
         public void Apply(AccountCreated e, UserAccounts view)
         {
-            view.AccountsBalance.Add(
-                e.AccountId,
+            view.Accounts.Add(
                 new Account()
                 {
                     Id = e.AccountId,
@@ -50,29 +48,42 @@ namespace Api.Features.Accounts.ListAccounts
 
         public void Apply(MoneyDeposited e, UserAccounts view)
         {
-            view.AccountsBalance[e.AccountId].Balance += e.Amount;
+            var account = view.Accounts.Find(x => x.Id == e.AccountId)
+                ?? throw new KeyNotFoundException($"account with id {e.AccountId}: notfound");
+            account.Balance += e.Amount;
         }
 
         public void Apply(MoneyWithdrawn e, UserAccounts view)
         {
-            view.AccountsBalance[e.AccountId].Balance -= e.Amount;
+            var account = view.Accounts.Find(x => x.Id == e.AccountId)
+                ?? throw new KeyNotFoundException($"account with id {e.AccountId}: notfound");
+            account.Balance -= e.Amount;
         }
 
         public void Apply(MoneyTransfered e, UserAccounts view)
         {
+
+
             if (view.UserId == e.SenderId)
             {
-                view.AccountsBalance[e.FromAccountId].Balance -= e.Amount;
+                var fromAccount = view.Accounts.Find(x => x.Id == e.FromAccountId)
+                    ?? throw new KeyNotFoundException($"account with id {e.FromAccountId}: notfound");
+                fromAccount.Balance -= e.Amount;
             }
             else if (view.UserId == e.RecipientId)
             {
-                view.AccountsBalance[e.ToAccountId].Balance += e.Amount;
+                var toAccount = view.Accounts.Find(x => x.Id == e.ToAccountId)
+                    ?? throw new KeyNotFoundException($"account with id {e.ToAccountId}: notfound");
+                toAccount.Balance += e.Amount;
             }
         }
 
         public void Apply(AccountClosed e, UserAccounts view)
         {
-            view.AccountsBalance.Remove(e.AccountId);
+            var toDelete = view.Accounts.Find(x => x.Id == e.AccountId);
+            if (toDelete != null) {
+                view.Accounts.Remove(toDelete);
+            }
         }
     }
 }

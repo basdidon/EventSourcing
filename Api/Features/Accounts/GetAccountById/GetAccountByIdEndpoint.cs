@@ -4,7 +4,6 @@ using Marten;
 
 namespace Api.Features.Accounts.GetAccountById
 {
-
     public class GetAccountByIdEndpoint(IDocumentSession session): Endpoint<GetAccountByIdRequest,BankAccount>
     {
         public override void Configure()

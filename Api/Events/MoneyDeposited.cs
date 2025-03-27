@@ -2,5 +2,10 @@
 
 namespace Api.Events
 {
-    public record MoneyDeposited(Guid AccountId,Guid OwnerId, decimal Amount):UserEvent(OwnerId);
+    public record MoneyDeposited(
+        Guid AccountId,
+        Guid ProcessedBy,
+        Guid OwnerId,
+        decimal Amount
+        ) : UserEvent(OwnerId);
 }

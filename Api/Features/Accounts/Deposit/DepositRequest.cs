@@ -6,6 +6,7 @@ namespace Api.Features.Accounts.Deposit
     {
         [FromClaim]
         public Guid UserId { get; set; }
+
         public Guid AccountId { get; set; }
         public decimal Amount { get; set; }
     }

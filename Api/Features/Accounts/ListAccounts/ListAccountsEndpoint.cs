@@ -13,7 +13,7 @@ namespace Api.Features.Accounts.ListAccounts
 
         public override async Task HandleAsync(ListAccountsRequest req, CancellationToken ct)
         {
-            var userAccounts = await session.Events.AggregateStreamAsync<UserAccounts>(req.UserId,token:ct);
+            var userAccounts = await session.LoadAsync<UserAccounts>(req.UserId, ct);
             
             if(userAccounts is null)
             {

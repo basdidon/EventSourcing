@@ -8,16 +8,15 @@ using Api.Features.Users;
 using Api.Features.Users.Auth.RefreshToken;
 using Api.Persistance;
 using Api.Projections;
+using Api.Services;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Marten;
 using Marten.Events.Projections;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Oakton;
 using Weasel.Core;
 using Wolverine;
@@ -28,6 +27,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 var identityDb = builder.Configuration.GetConnectionString("identityDb");
 var signingKey = builder.Configuration.GetSection("jwt:signingKey").Value;
+
+builder.Services.AddTransient<RoleService>();
+builder.Services.AddTransient<UserService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -65,6 +67,9 @@ builder.Services
            s.Version = "v1";
        };
    });
+
+// The Default Authentication Scheme
+// see more : https://fast-endpoints.com/docs/security#the-default-authentication-scheme
 builder.Services.AddAuthentication(o =>
 {
     o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -137,39 +142,8 @@ app.UseJwtRevocation<BlacklistChecker>()
     c.Versioning.PrependToRoute = true;
     c.Versioning.DefaultVersion = 1;
 }).UseSwaggerGen();
-/*
-app.MapGet("/accounts", async (IMessageBus bus, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
-{
-    page = int.Max(1, page);
-    pageSize = int.Max(1, pageSize);
-
-    return await bus.InvokeAsync<IEnumerable<BankAccount>>(new ListBankAccountsQuery(page, pageSize));
-});
-
-app.MapGet("/accounts/{id}/transactions", async (IMessageBus bus, Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
-{
-    page = int.Max(1, page);
-    pageSize = int.Max(1, pageSize);
-
-    return await bus.InvokeAsync<IEnumerable<BankAccountTransaction>>(new ListBankAccountTransactionsQuery(id, page, pageSize));
-})
-    .WithTags("Accounts");
-
-app.MapGet("/transactions", async (IMessageBus bus, [FromQuery] int page = 1, [FromQuery] int pageSize = 100) =>
-{
-    page = int.Max(1, page);
-    pageSize = int.Max(1, pageSize);
-
-    return await bus.InvokeAsync<IEnumerable<BankAccountTransaction>>(new AllTransactionsQuery(page, pageSize));
-});
-*/
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
-/*
-app.MapWolverineEndpoints(opts =>
-{
-    opts.UseFluentValidationProblemDetailMiddleware();
-});*/
 
 // Opt into using Oakton for command line parsing
 // to unlock built in diagnostics and utility tools within
