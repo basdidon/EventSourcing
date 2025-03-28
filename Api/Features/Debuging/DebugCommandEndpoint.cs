@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿/*
+using FastEndpoints;
 using Wolverine;
 
 namespace Api.Features.Debuging
@@ -18,3 +19,4 @@ namespace Api.Features.Debuging
         }
     }
 }
+*/

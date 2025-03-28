@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Wolverine.Marten;
-/*
+﻿/*
 namespace Api.Endpoints.BankAccounts
 {
     public static class WithdrawEndpoint

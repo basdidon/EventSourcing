@@ -12,19 +12,17 @@ namespace Api.Features.Accounts.CreateAccount
         {
             Post("/accounts");
             Roles("Teller", "Admin");
+            // default authentication scheme return NotFound(404) when unauthorize(401) and forbidden(403)
             AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
 
         public override async Task HandleAsync(CreateAccountRequest req, CancellationToken ct)
         {
-            if (!User.IsInRole("Teller") && !User.IsInRole("Admin"))
-            {
-                await SendForbiddenAsync(ct);
-                return;
-            }
-
             var accountId = Guid.NewGuid();
             var accountNumber = "xxx-xxxxxx-x";
+
+            // TODO : ensure CustomerId should exists
+
             session.Events.StartStream(accountId, new AccountCreated(accountId, req.UserId, req.CustomerId, accountNumber, req.InitialBalance));
             await session.SaveChangesAsync(ct);
 
