@@ -1,4 +1,4 @@
-﻿namespace Api.Tests.Integration
+﻿namespace Api.Tests.Integration.Tests
 {
     [Collection(nameof(DatabaseTestCollection))]
     public class HealthcheckEnpointTest(IntegrationTestFactory factory)

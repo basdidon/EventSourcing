@@ -3,20 +3,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
-namespace Api.Tests.Integration
+namespace Api.Tests.Integration.Helper
 {
     internal class AuthHelper
     {
-        public static async Task LoginAsAdmin(HttpClient client)
-            => await Login(client, "admin", "admin123");
-
-        public static async Task LoginAsTeller(HttpClient client)
-            => await Login(client, "teller", "teller123");
-
-        public static async Task LoginAsCustomer_1(HttpClient client)
-            => await Login(client, "customer01", "customer01");
-
-        private static async Task Login(HttpClient client, string username, string password)
+        public static async Task LoginAsync(HttpClient client, string username, string password)
         {
             var request = "/api/v1/login";
             var loginRequest = new { username, password };

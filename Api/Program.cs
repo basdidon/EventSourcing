@@ -9,6 +9,7 @@ using Api.Features.Users.Auth.RefreshToken;
 using Api.Persistance;
 using Api.Projections;
 using Api.Services;
+using Api.Services.Interfaces;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
@@ -26,6 +27,8 @@ var signingKey = builder.Configuration.GetSection("jwt:signingKey").Value;
 
 builder.Services.AddTransient<RoleService>();
 builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<OtpService>();
+builder.Services.AddTransient<SmsService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

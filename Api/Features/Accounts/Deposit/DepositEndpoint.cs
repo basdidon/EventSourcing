@@ -5,7 +5,6 @@ using Marten;
 
 namespace Api.Features.Accounts.Deposit
 {
-
     public class DepositEndpoint(IDocumentSession session) : Endpoint<DepositRequest>
     {
         public override void Configure()

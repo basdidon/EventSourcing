@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scr", "scr", "{3E39192F-4EA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Tests.Integration", "Api.Tests.Integration\Api.Tests.Integration.csproj", "{759BB1AA-2AEC-4D27-86BF-FAFB012197D7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{341464C1-FE91-4D5D-BDC7-A8E0810D3215}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3A1B4B6D-B822-4741-B10D-E9661CDF40B6} = {3E39192F-4EAB-4262-99BB-7C73A4820510}
+		{759BB1AA-2AEC-4D27-86BF-FAFB012197D7} = {341464C1-FE91-4D5D-BDC7-A8E0810D3215}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B1CA6104-47B8-4273-BBB1-B6557CAF0E17}
