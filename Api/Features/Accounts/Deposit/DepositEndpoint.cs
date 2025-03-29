@@ -16,11 +16,20 @@ namespace Api.Features.Accounts.Deposit
 
         public override async Task HandleAsync(DepositRequest req, CancellationToken ct)
         {
+            var account = await session.LoadAsync<BankAccount>(req.AccountId,ct);
+            if(account is null)
+            {
+                await SendNotFoundAsync(ct);
+                return;
+            }
+
             var stream = await session.Events.FetchForWriting<BankAccount>(req.AccountId, ct);
             var ownerId = stream.Aggregate.OwnerId;
 
             stream.AppendOne(new MoneyDeposited(req.AccountId, req.UserId, ownerId, req.Amount));
             await session.SaveChangesAsync(ct);
+
+            await SendOkAsync(ct);
         }
     }
 }

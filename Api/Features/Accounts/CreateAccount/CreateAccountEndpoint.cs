@@ -1,12 +1,15 @@
-﻿using Api.Events;
+﻿using Api.Enums;
+using Api.Events;
 using Api.Features.Accounts.GetAccountById;
+using Api.Features.Users;
 using FastEndpoints;
 using Marten;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 
 namespace Api.Features.Accounts.CreateAccount
 {
-    public class CreateAccountEndpoint(IDocumentSession session) : Endpoint<CreateAccountRequest, CreateAccountResponse>
+    public class CreateAccountEndpoint(IDocumentSession session, UserManager<ApplicationUser> userManager) : Endpoint<CreateAccountRequest, CreateAccountResponse>
     {
         public override void Configure()
         {
@@ -21,17 +24,33 @@ namespace Api.Features.Accounts.CreateAccount
             var accountId = Guid.NewGuid();
             var accountNumber = "xxx-xxxxxx-x";
 
-            // TODO : ensure CustomerId should exists
+            // ensure CustomerId should exists
+            var customer = await userManager.FindByIdAsync(req.CustomerId.ToString());
+            if (customer is null)
+            {
+                await SendNotFoundAsync(ct);
+                return;
+            }
+
+            // Role validate
+            var isCustomer = await userManager.IsInRoleAsync(customer, Enums.Roles.Customer.ToString());
+            if (!isCustomer)
+            {
+                AddError(x => x.CustomerId, "Customer with customerId is not in Customer role");
+                await SendErrorsAsync(403, ct);
+                return;
+            }
 
             session.Events.StartStream(accountId, new AccountCreated(accountId, req.UserId, req.CustomerId, accountNumber, req.InitialBalance));
             await session.SaveChangesAsync(ct);
 
+            // send response
             await SendCreatedAtAsync<GetAccountByIdEndpoint>(
-                new
+                new // route params
                 {
                     AccountId = accountId
                 },
-                new()
+                new() // response body
                 {
                     AccountId = accountId,
                     AccountNumber = accountNumber
