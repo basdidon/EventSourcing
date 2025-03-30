@@ -9,7 +9,6 @@ using Api.Features.Users.Auth.RefreshToken;
 using Api.Persistance;
 using Api.Projections;
 using Api.Services;
-using Api.Services.Interfaces;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;

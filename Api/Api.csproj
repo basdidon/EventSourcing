@@ -26,4 +26,8 @@
     <InternalsVisibleTo Include="Api.UnitTests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Accounts\Withdraw\Request\" />
+  </ItemGroup>
+
 </Project>
