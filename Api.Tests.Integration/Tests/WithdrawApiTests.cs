@@ -1,7 +1,7 @@
 ﻿using Api.Events;
 using Api.Features.Accounts;
-using Api.Features.Accounts.Withdraw;
 using Api.Features.Accounts.Withdraw.Confirm;
+using Api.Features.Accounts.Withdraw.Request;
 using Api.Tests.Integration.Tests.Abstract;
 using System.Net.Http.Json;
 
@@ -11,7 +11,7 @@ namespace Api.Tests.Integration.Tests
     public class WithdrawApiTests(IntegrationTestFactory factory) : BaseApiTests(factory)
     {
         private static string GetWithdrawEndpoint(Guid accountId) => $"api/v1/accounts/{accountId}/withdraw";
-        private static string GetConfirmEndpoint(Guid requestId) => $"/api/v1/withdraw/{requestId}/confirm";
+        private static string GetConfirmEndpoint(Guid requestId) => $"api/v1/withdraw/{requestId}/confirm";
 
         Guid accountId;
 
@@ -37,6 +37,7 @@ namespace Api.Tests.Integration.Tests
         {
             await SeedDb();
 
+            // Arrange
             var body = new WithdrawRequest()
             {
                 Amount = 500,

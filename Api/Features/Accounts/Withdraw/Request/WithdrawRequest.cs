@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 
-namespace Api.Features.Accounts.Withdraw
+namespace Api.Features.Accounts.Withdraw.Request
 {
     public class WithdrawRequest
     {

@@ -1,6 +1,4 @@
-﻿using Api.Entities;
-using Api.Enums;
-using Api.Events;
+﻿using Api.Enums;
 using Api.Persistance;
 using Api.Services;
 using Api.Tests.Integration.Helper;

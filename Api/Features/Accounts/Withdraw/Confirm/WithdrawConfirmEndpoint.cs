@@ -2,6 +2,7 @@
 using Api.Persistance;
 using FastEndpoints;
 using Marten;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Api.Features.Accounts.Withdraw.Confirm
 {
@@ -11,6 +12,7 @@ namespace Api.Features.Accounts.Withdraw.Confirm
         {
             Post("withdraw/{RequestId}/confirm");
             Roles("Teller","Admin");
+            AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
 
         public override async Task HandleAsync(WithdrawConfirmRequest req, CancellationToken ct)

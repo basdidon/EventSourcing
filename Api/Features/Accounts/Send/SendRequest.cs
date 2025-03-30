@@ -6,7 +6,9 @@ namespace Api.Features.Accounts.Send
     {
         [FromClaim]
         public Guid UserId { get; set; }
-        public Guid SenderId { get; set; }
-        public Guid RecipientId { get; set; }
+        
+        public Guid FromAccount { get; set; }
+        public Guid ToAccount { get; set; }
+        public decimal Amount { get; set; }
     }
 }

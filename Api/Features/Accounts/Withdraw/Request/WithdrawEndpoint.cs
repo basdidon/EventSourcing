@@ -4,7 +4,7 @@ using FastEndpoints;
 using Marten;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace Api.Features.Accounts.Withdraw
+namespace Api.Features.Accounts.Withdraw.Request
 {
     public class WithdrawEndpoint(IDocumentSession session, ApplicationDbContext context, OtpService otpService, SmsService smsService) : Endpoint<WithdrawRequest>
     {
