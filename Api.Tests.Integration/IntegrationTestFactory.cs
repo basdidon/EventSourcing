@@ -1,5 +1,4 @@
-﻿using Api.Entities;
-using Api.Events.User;
+﻿using Api.Events.User;
 using Api.Events;
 using Api.Features.Accounts.ListAccounts;
 using Api.Persistance;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Respawn;
 using System.Data.Common;
 using Testcontainers.PostgreSql;
+using Api.Features.Accounts;
 
 namespace Api.Tests.Integration
 {

@@ -1,4 +1,4 @@
-﻿using Api.Entities;
+﻿using Api.Features.Accounts;
 using Api.Features.Accounts.CreateAccount;
 using Api.Tests.Integration.Tests.Abstract;
 using System.Net;

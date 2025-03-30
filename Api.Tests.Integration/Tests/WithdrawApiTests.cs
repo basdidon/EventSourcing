@@ -1,5 +1,5 @@
-﻿using Api.Entities;
-using Api.Events;
+﻿using Api.Events;
+using Api.Features.Accounts;
 using Api.Features.Accounts.Withdraw;
 using Api.Features.Accounts.Withdraw.Confirm;
 using Api.Tests.Integration.Tests.Abstract;

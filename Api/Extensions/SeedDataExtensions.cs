@@ -1,7 +1,7 @@
-﻿using Api.Entities;
-using Api.Enums;
+﻿using Api.Enums;
 using Api.Events;
 using Api.Events.User;
+using Api.Features.Accounts;
 using Api.Features.Accounts.ListAccounts;
 using Api.Features.Users;
 using Api.Persistance;

@@ -1,5 +1,4 @@
-﻿using Api.Entities;
-using FastEndpoints;
+﻿using FastEndpoints;
 using Marten;
 
 namespace Api.Features.Accounts.GetAccountById

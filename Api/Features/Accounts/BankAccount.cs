@@ -1,4 +1,4 @@
-﻿namespace Api.Entities
+﻿namespace Api.Features.Accounts
 {
     public class BankAccount
     {

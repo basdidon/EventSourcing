@@ -1,8 +1,8 @@
 using Api;
-using Api.Entities;
 using Api.Events;
 using Api.Events.User;
 using Api.Extensions;
+using Api.Features.Accounts;
 using Api.Features.Accounts.ListAccounts;
 using Api.Features.Users;
 using Api.Features.Users.Auth.RefreshToken;

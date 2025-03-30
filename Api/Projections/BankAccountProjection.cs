@@ -1,5 +1,5 @@
-﻿using Api.Entities;
-using Api.Events;
+﻿using Api.Events;
+using Api.Features.Accounts;
 using Marten.Events.Aggregation;
 
 namespace Api.Projections

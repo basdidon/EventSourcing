@@ -1,5 +1,4 @@
-﻿using Api.Entities;
-using Api.Events;
+﻿using Api.Events;
 using Api.Persistance;
 using FastEndpoints;
 using Marten;
