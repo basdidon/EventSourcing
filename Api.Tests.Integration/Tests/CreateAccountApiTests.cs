@@ -7,7 +7,6 @@ using System.Text.Json;
 
 namespace Api.Tests.Integration.Tests
 {
-
     [Collection(nameof(DatabaseTestCollection))]
     public class CreateAccountApiTests(IntegrationTestFactory factory) : BaseApiTests(factory)
     {
@@ -147,7 +146,6 @@ namespace Api.Tests.Integration.Tests
             await SeedDb();
 
             // Arrange
-            var request = "/api/v1/accounts";
             var body = new CreateAccountRequest
             {
                 CustomerId = Guid.NewGuid(),
@@ -156,7 +154,7 @@ namespace Api.Tests.Integration.Tests
 
             // Act
             await LoginBySeedUserAsync("teller");
-            var res = await client.PostAsJsonAsync(request, body);
+            var res = await client.PostAsJsonAsync(requestEndpoint, body);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);

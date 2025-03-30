@@ -3,6 +3,7 @@ using Api.Persistance;
 using Api.Services;
 using FastEndpoints;
 using Marten;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Api.Features.Accounts.Withdraw
 {
@@ -11,7 +12,8 @@ namespace Api.Features.Accounts.Withdraw
         public override void Configure()
         {
             Post("/accounts/{AccountId}/withdraw");
-            Roles("teller", "admin");
+            Roles("Teller", "Admin");
+            AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
 
         public override async Task HandleAsync(WithdrawRequest req, CancellationToken ct)
@@ -38,8 +40,6 @@ namespace Api.Features.Accounts.Withdraw
             }
 
             string optCode = otpService.GenerateOTP();
-            var stream = await session.Events.FetchForWriting<BankAccount>(req.AccountId, ct);
-
 
             WithdrawalRequest request = new()
             {

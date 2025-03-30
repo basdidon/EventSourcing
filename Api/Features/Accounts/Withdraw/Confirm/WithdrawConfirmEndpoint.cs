@@ -10,8 +10,8 @@ namespace Api.Features.Accounts.Withdraw.Confirm
     {
         public override void Configure()
         {
-            Post("withdrawal/{RequestId}/confirm");
-            Roles("teller","admin");
+            Post("withdraw/{RequestId}/confirm");
+            Roles("Teller","Admin");
         }
 
         public override async Task HandleAsync(WithdrawConfirmRequest req, CancellationToken ct)

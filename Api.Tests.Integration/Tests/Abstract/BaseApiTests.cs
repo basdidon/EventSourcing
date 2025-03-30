@@ -48,7 +48,7 @@ namespace Api.Tests.Integration.Tests.Abstract
             await SeedUser("teller", "teller123", Roles.Teller);
             await SeedUser("customer01", "customer01", Roles.Customer);
             await SeedUser("customer02", "customer02", Roles.Customer);
-
+            /*
             // SEED TRANSACTIONS
             // teller create account for customers
             var account1_id = Guid.NewGuid();
@@ -57,7 +57,7 @@ namespace Api.Tests.Integration.Tests.Abstract
             var account1_deposited = new MoneyDeposited(account1_id, SeedUsers["teller"].Id, SeedUsers["customer01"].Id, 800);
             session.Events.StartStream<BankAccount>(account1_id, account1_created, account2_withdrawn, account1_deposited);
 
-            await session.SaveChangesAsync();
+            await session.SaveChangesAsync();*/
         }
     }
 }
