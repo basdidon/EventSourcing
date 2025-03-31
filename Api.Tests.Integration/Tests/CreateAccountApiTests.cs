@@ -10,7 +10,7 @@ namespace Api.Tests.Integration.Tests
     [Collection(nameof(DatabaseTestCollection))]
     public class CreateAccountApiTests(IntegrationTestFactory factory) : BaseApiTests(factory)
     {
-        readonly static string requestEndpoint = "/api/v1/accounts";
+        const string requestEndpoint = "/api/v1/accounts";
 
         #region Initial Balance
         [Fact]
@@ -178,6 +178,46 @@ namespace Api.Tests.Integration.Tests
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, res.StatusCode);
+        }
+
+        [Fact]
+        public async Task Create_Account_For_Admin_Should_Failed()
+        {
+            await SeedDb();
+
+            // Arrange
+            var body = new CreateAccountRequest
+            {
+                CustomerId = GetSeedUserId("admin"), // use admin id
+                InitialBalance = 1000,
+            };
+
+            // Act
+            await LoginBySeedUserAsync("teller");
+            var res = await client.PostAsJsonAsync(requestEndpoint, body);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, res.StatusCode);
+        }
+
+        [Fact]
+        public async Task Create_Account_By_Admin_Should_Success()
+        {
+            await SeedDb();
+
+            // Arrange
+            var body = new CreateAccountRequest
+            {
+                CustomerId = GetSeedUserId("customer01"),
+                InitialBalance = 1000,
+            };
+
+            // Act
+            await LoginBySeedUserAsync("admin");
+            var res = await client.PostAsJsonAsync(requestEndpoint, body);
+
+            // Assert
+            res.EnsureSuccessStatusCode();
         }
     }
 }

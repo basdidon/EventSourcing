@@ -9,6 +9,6 @@ namespace Api.Features.Accounts.Withdraw.Confirm
 
         public Guid RequestId { get; set; }
 
-        public string Otp {  get; set; } = string.Empty;
+        public string Otp { get; set; } = string.Empty;
     }
 }

@@ -11,4 +11,5 @@ namespace Api.Features.Accounts.Send
         public Guid ToAccountId { get; set; }
         public decimal Amount { get; set; }
     }
+
 }

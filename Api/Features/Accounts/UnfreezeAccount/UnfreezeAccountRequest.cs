@@ -2,6 +2,7 @@
 
 namespace Api.Features.Accounts.UnfreezeAccount
 {
+
     public class UnfreezeAccountRequest
     {
         [FromClaim("UserId")]
