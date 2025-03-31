@@ -9,5 +9,7 @@
         public string AccountNumber { get; set; } = string.Empty;  // xxx-xxxxxx-x
 
         public decimal Balance { get; set; }
+
+        public bool IsFrozen { get; set; }
     }
 }

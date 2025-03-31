@@ -6,6 +6,7 @@ namespace Api.Features.Accounts.GetAccountById
     {
         [FromClaim]
         public Guid UserId { get; set; }
+
         public Guid AccountId { get; set; }
     }
 }

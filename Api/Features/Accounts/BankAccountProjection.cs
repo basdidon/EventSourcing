@@ -1,8 +1,7 @@
 ﻿using Api.Events;
-using Api.Features.Accounts;
 using Marten.Events.Aggregation;
 
-namespace Api.Projections
+namespace Api.Features.Accounts
 {
 
     public class BankAccountProjection : SingleStreamProjection<BankAccount>
@@ -17,8 +16,12 @@ namespace Api.Projections
             Id = e.AccountId,
             OwnerId = e.OwnerId,
             AccountNumber = e.AccountNumber,
-            Balance = e.InitialBalance
+            Balance = e.InitialBalance,
+            IsFrozen = false,
         };
+
+        public static void Apply(AccountFrozen e, BankAccount account) => account.IsFrozen = true;
+        public static void Apply(AccountUnfrozen e, BankAccount account) => account.IsFrozen = false;
 
         // No validation here since this event has already occurred. 
         // We are simply updating the state of the aggregate.

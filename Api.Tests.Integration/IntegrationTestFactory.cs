@@ -2,7 +2,6 @@
 using Api.Events;
 using Api.Features.Accounts.ListAccounts;
 using Api.Persistance;
-using Api.Projections;
 using Api.Services;
 using Marten;
 using Marten.Events.Projections;

@@ -1,4 +1,4 @@
-﻿using Api.Enums;
+﻿using Api.Const;
 using Api.Events;
 using Api.Events.User;
 using Api.Features.Accounts;
@@ -27,18 +27,18 @@ namespace Api.Extensions
             await store.Advanced.ResetAllData();
 
             // seed roles
-            await roleService.CreateRolesAsync([..Enum.GetNames<Roles>()]);
+            await roleService.CreateRolesAsync(Role.All);
 
             // SEED USERS
             // Admin
-            var admin = await userService.CreateUser("admin","admin123",Roles.Admin);
+            var admin = await userService.CreateUser("admin","admin123",[Role.Admin]);
 
             // Teller
-            var teller = await userService.CreateUser("teller", "teller123", Roles.Teller);
+            var teller = await userService.CreateUser("teller", "teller123", [Role.Teller]);
 
             // Customers
-            var cust01 = await userService.CreateUser("customer01", "customer01",Roles.Customer);
-            var cust02 = await userService.CreateUser("customer02", "customer02",Roles.Customer);
+            var cust01 = await userService.CreateUser("customer01", "customer01",[Role.Customer]);
+            var cust02 = await userService.CreateUser("customer02", "customer02",[Role.Customer]);
 
             // SEED TRANSACTIONS
             // teller create account for customers

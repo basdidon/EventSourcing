@@ -1,8 +1,8 @@
 ﻿using FastEndpoints;
 
-namespace Api.Features.Accounts.FreezeAccount
+namespace Api.Features.Accounts.UnfreezeAccount
 {
-    public class FreezeAccountRequest
+    public class UnfreezeAccountRequest
     {
         [FromClaim("UserId")]
         public Guid AdminId { get; set; }

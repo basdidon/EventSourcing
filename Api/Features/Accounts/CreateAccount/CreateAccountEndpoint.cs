@@ -1,4 +1,4 @@
-﻿using Api.Enums;
+﻿using Api.Const;
 using Api.Events;
 using Api.Features.Accounts.GetAccountById;
 using Api.Features.Users;
@@ -14,7 +14,7 @@ namespace Api.Features.Accounts.CreateAccount
         public override void Configure()
         {
             Post("/accounts");
-            Roles("Teller", "Admin");
+            Roles(Role.Teller,Role.Admin);
             // default authentication scheme return NotFound(404) when unauthorize(401) and forbidden(403)
             AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
@@ -33,7 +33,7 @@ namespace Api.Features.Accounts.CreateAccount
             }
 
             // Role validate
-            var isCustomer = await userManager.IsInRoleAsync(customer, Enums.Roles.Customer.ToString());
+            var isCustomer = await userManager.IsInRoleAsync(customer, Role.Customer.ToString());
             if (!isCustomer)
             {
                 AddError(x => x.CustomerId, "Customer with customerId is not in Customer role");

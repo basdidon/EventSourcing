@@ -1,17 +1,17 @@
 ﻿using Api.Events;
 using Api.Features.Accounts;
-using Api.Features.Accounts.Deposit;
 using Api.Features.Accounts.FreezeAccount;
+using Api.Features.Accounts.UnfreezeAccount;
 using Api.Tests.Integration.Tests.Abstract;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace Api.Tests.Integration.Tests
 {
     [Collection(nameof(DatabaseTestCollection))]
-    public class DepositApiTests(IntegrationTestFactory factory) : BaseApiTests(factory)
+    public class FreezeApiTests(IntegrationTestFactory factory) : BaseApiTests(factory)
     {
-        private static string GetDepositEndpoint(Guid accountId) => $"api/v1/accounts/{accountId}/deposit";
+        private static string GetFreezeEndpoint(Guid accountId) => $"api/v1/accounts/{accountId}/freeze";
+        private static string GetUnfreezeEndpoint(Guid accountId) => $"api/v1/accounts/{accountId}/unfreeze";
 
         Guid accountId;
 
@@ -33,55 +33,49 @@ namespace Api.Tests.Integration.Tests
         }
 
         [Fact]
-        public async Task Deposit_Should_Success()
+        public async Task Freeze_Account_Should_Success()
         {
             await SeedDb();
 
             // Arrange
-            var body = new DepositRequest()
+            var body = new FreezeAccountRequest()
             {
-                Amount = 500
+                AccountId = accountId,
             };
 
             // Act
-            await LoginBySeedUserAsync("teller");
-            var res = await client.PostAsJsonAsync(GetDepositEndpoint(accountId), body);
+            await LoginBySeedUserAsync("admin");
+            var res = await client.PostAsJsonAsync(GetFreezeEndpoint(accountId), body);
             res.EnsureSuccessStatusCode();
 
             // Assert
             var account = await session.Events.AggregateStreamAsync<BankAccount>(accountId);
             Assert.NotNull(account);
-            Assert.Equal(1500, account.Balance);
+            Assert.True(account.IsFrozen);
         }
 
         [Fact]
-        public async Task Deposit_To_Frozen_Account_Should_Failed()
+        public async Task Unfreeze_Account_Should_Success()
         {
             await SeedDb();
 
             // Arrange
-            var body = new DepositRequest()
+            var body = new UnfreezeAccountRequest()
             {
-                Amount = 500
+                AccountId = accountId,
             };
 
             await LoginBySeedUserAsync("admin");
-            var freezeRes = await client.PostAsJsonAsync(
-                $"/api/v1/accounts/{accountId}/freeze",
-                new FreezeAccountRequest()
-                {
-                    AccountId = accountId
-                });
+            var freezeRes = await client.PostAsJsonAsync(GetFreezeEndpoint(accountId), new FreezeAccountRequest(){ AccountId = accountId });
             freezeRes.EnsureSuccessStatusCode();
-
             // Act
-
-            await LoginBySeedUserAsync("teller");
-            var res = await client.PostAsJsonAsync(GetDepositEndpoint(accountId), body);
+            var res = await client.PostAsJsonAsync(GetUnfreezeEndpoint(accountId), body);
+            res.EnsureSuccessStatusCode();
 
             // Assert
-            Assert.Equal(HttpStatusCode.Conflict, res.StatusCode);
+            var account = await session.Events.AggregateStreamAsync<BankAccount>(accountId);
+            Assert.NotNull(account);
+            Assert.False(account.IsFrozen);
         }
-
     }
 }

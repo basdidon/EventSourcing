@@ -1,4 +1,5 @@
-﻿using Api.Events;
+﻿using Api.Const;
+using Api.Events;
 using Api.Persistance;
 using FastEndpoints;
 using Marten;
@@ -11,7 +12,7 @@ namespace Api.Features.Accounts.Withdraw.Confirm
         public override void Configure()
         {
             Post("withdraw/{RequestId}/confirm");
-            Roles("Teller","Admin");
+            Roles(Role.Teller,Role.Admin);
             AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
 
@@ -76,6 +77,15 @@ namespace Api.Features.Accounts.Withdraw.Confirm
                 await RevockWithdrawalRequest(withdrawalRequest, ct);
 
                 await SendNotFoundAsync(ct);
+                return;
+            }
+
+            if (account.IsFrozen)
+            {
+                await RevockWithdrawalRequest(withdrawalRequest, ct);
+
+                AddError("account is frozen.");
+                await SendErrorsAsync(409, ct);
                 return;
             }
 

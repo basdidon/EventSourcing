@@ -1,4 +1,4 @@
-﻿using Api.Enums;
+﻿using Api.Const;
 using Api.Persistance;
 using Api.Services;
 using Api.Tests.Integration.Helper;
@@ -17,9 +17,9 @@ namespace Api.Tests.Integration.Tests.Abstract
 
         private readonly UserLoginDictionary SeedUsers = [];
 
-        protected async Task SeedUser(string username, string password, Roles role)
+        protected async Task SeedUser(string username, string password, string[] roles)
         {
-            var user = await userService.CreateUser(username, password, role);
+            var user = await userService.CreateUser(username, password, roles);
             SeedUsers.Add(username, new()
             {
                 Id = user.Id,
@@ -39,13 +39,13 @@ namespace Api.Tests.Integration.Tests.Abstract
         {
             await _resetDatabase();
 
-            await roleService.CreateRolesAsync([.. Enum.GetNames<Roles>()]);
+            await roleService.CreateRolesAsync(Role.All);
 
             // SEED USERS
-            await SeedUser("admin", "admin123", Roles.Admin);
-            await SeedUser("teller", "teller123", Roles.Teller);
-            await SeedUser("customer01", "customer01", Roles.Customer);
-            await SeedUser("customer02", "customer02", Roles.Customer);
+            await SeedUser("admin", "admin123", [Role.Admin]);
+            await SeedUser("teller", "teller123", [Role.Teller]);
+            await SeedUser("customer01", "customer01", [Role.Customer]);
+            await SeedUser("customer02", "customer02", [Role.Customer]);
             /*
             // SEED TRANSACTIONS
             // teller create account for customers

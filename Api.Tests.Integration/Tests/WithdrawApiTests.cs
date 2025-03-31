@@ -22,8 +22,8 @@ namespace Api.Tests.Integration.Tests
             accountId = Guid.NewGuid();
             AccountCreated accountCreated = new(
                 accountId,
-                GetSeedUserId("teller"), 
-                GetSeedUserId("customer01"), 
+                GetSeedUserId("teller"),
+                GetSeedUserId("customer01"),
                 "xxx-xxxxxx-x",
                 1000
             );
@@ -54,7 +54,7 @@ namespace Api.Tests.Integration.Tests
             {
                 Otp = withdrawal.Otp
             };
-            var confirmRes = await client.PostAsJsonAsync(GetConfirmEndpoint(withdrawal.Id),confirmBody);
+            var confirmRes = await client.PostAsJsonAsync(GetConfirmEndpoint(withdrawal.Id), confirmBody);
             confirmRes.EnsureSuccessStatusCode();
 
             // Assert

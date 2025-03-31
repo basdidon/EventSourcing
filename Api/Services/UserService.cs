@@ -1,5 +1,4 @@
-﻿using Api.Enums;
-using Api.Events.User;
+﻿using Api.Events.User;
 using Api.Features.Users;
 using Api.Persistance;
 using Marten;
@@ -9,7 +8,7 @@ namespace Api.Services
 {
     public class UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IDocumentSession session)
     {
-        public async Task<ApplicationUser> CreateUser(string username, string password, Roles roles)
+        public async Task<ApplicationUser> CreateUser(string username, string password, string[] roles)
         {
             ApplicationUser user = new()
             {
@@ -18,7 +17,7 @@ namespace Api.Services
 
             await userManager.CreateAsync(user, password);
             await context.SaveChangesAsync();  // required to save user before add role ?
-            await userManager.AddToRoleAsync(user, roles.ToString());
+            await userManager.AddToRolesAsync(user, roles);
 
             // Publish Event
             UserRegistered userRegistered = new(user.Id);
