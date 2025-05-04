@@ -2,12 +2,9 @@
 using Api.Events;
 using Api.Events.User;
 using Api.Features.Accounts;
-using Api.Features.Accounts.ListAccounts;
-using Api.Features.Users;
 using Api.Persistance;
 using Api.Services;
 using Marten;
-using Microsoft.AspNetCore.Identity;
 
 namespace Api.Extensions
 {
@@ -42,11 +39,10 @@ namespace Api.Extensions
 
             // SEED TRANSACTIONS
             // teller create account for customers
-            var account1_id = Guid.NewGuid();
-            var account1_created = new AccountCreated(account1_id, teller.Id, cust01.Id, "xxx-xxxxxx-x", 1000);
-            var account2_withdrawn = new MoneyWithdrawn(account1_id, teller.Id, cust01.Id, 300);
-            var account1_deposited = new MoneyDeposited(account1_id, teller.Id, cust01.Id, 800);
-            session.Events.StartStream<BankAccount>(account1_id,account1_created,account2_withdrawn,account1_deposited);
+            var account1_created = new AccountCreated( cust01.Id, teller.Id, "xxx-xxxxxx-x", 1000);
+            var account1_withdrawn = new MoneyWithdrawn(300,teller.Id);
+            var account1_deposited = new MoneyDeposited(800, teller.Id);
+            session.Events.StartStream<BankAccount>(account1_created,account1_withdrawn,account1_deposited);
 
             await session.SaveChangesAsync();
         }

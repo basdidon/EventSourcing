@@ -2,6 +2,7 @@
 using Api.Events;
 using Api.Persistance;
 using FastEndpoints;
+using FastEndpoints.Swagger;
 using Marten;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -12,6 +13,7 @@ namespace Api.Features.Accounts.Withdraw.Confirm
         public override void Configure()
         {
             Post("withdraw/{RequestId}/confirm");
+            Description(o => o.AutoTagOverride("accounts"));
             Roles(Role.Teller,Role.Admin);
             AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
@@ -99,7 +101,7 @@ namespace Api.Features.Accounts.Withdraw.Confirm
             }
 
             // Process
-            stream.AppendOne(new MoneyWithdrawn(withdrawalRequest.AccountId,req.UserId,account.OwnerId,withdrawalRequest.Amount));
+            stream.AppendOne(new MoneyWithdrawn(withdrawalRequest.Amount,req.UserId));
             await session.SaveChangesAsync(ct);
         }
 

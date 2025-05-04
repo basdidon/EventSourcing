@@ -7,10 +7,13 @@ namespace Api.Features.Accounts.FreezeAccount
         public FreezeAccountValidator()
         {
             RuleFor(x => x.AdminId)
-                .NotEmpty();
+                .NotEmpty()
+                .WithMessage("AdminId cant be empty.");
 
             RuleFor(x => x.AccountId)
-                .NotEmpty();
+                .NotEmpty()
+                .WithMessage("AccountId cant be empty.");
+
         }
     }
 }

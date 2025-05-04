@@ -7,7 +7,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Api.Features.Accounts.Withdraw.Request
 {
-    public class WithdrawEndpoint(IDocumentSession session, ApplicationDbContext context, OtpService otpService, SmsService smsService) : Endpoint<WithdrawRequest>
+
+    public class WithdrawResponse
+    {
+        public Guid RequestId { get; set; }
+    }
+
+    public class WithdrawEndpoint(IDocumentSession session, ApplicationDbContext context, OtpService otpService, SmsService smsService) : Endpoint<WithdrawRequest,WithdrawResponse>
     {
         public override void Configure()
         {
@@ -61,6 +67,8 @@ namespace Api.Features.Accounts.Withdraw.Request
             await context.SaveChangesAsync(ct);
 
             await smsService.SendOtpAsync("xxx-xxx-xxxx", optCode);
+
+            await SendAsync(new WithdrawResponse() { RequestId = request.Id },cancellation: ct);
         }
     }
 }

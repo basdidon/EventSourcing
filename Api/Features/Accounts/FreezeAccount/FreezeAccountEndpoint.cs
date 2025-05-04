@@ -12,6 +12,7 @@ namespace Api.Features.Accounts.FreezeAccount
         {
             Post("/accounts/{AccountId}/freeze");
             Roles(Role.Admin);
+            Description(d => d.Accepts<FreezeAccountRequest>("*/*"));
             // default authenstication scheme return NotFound(404) when unauthorize(401) and forbidden(403)
             AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         }
@@ -33,7 +34,7 @@ namespace Api.Features.Accounts.FreezeAccount
                 return;
             }
 
-            var e = new AccountFrozen(req.AccountId, account.OwnerId, req.AdminId);
+            var e = new AccountFrozen(req.AdminId);
             stream.AppendOne(e);
             await session.SaveChangesAsync(ct);
         }

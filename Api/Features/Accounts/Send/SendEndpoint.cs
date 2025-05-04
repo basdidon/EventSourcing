@@ -60,11 +60,12 @@ namespace Api.Features.Accounts.Send
             }
 
             // process
-            MoneyTransfered moneyTransfered = new(fromAccount.Id, fromAccount.OwnerId, toAccount.Id, toAccount.OwnerId, req.Amount);
+            Guid transactionId = Guid.NewGuid();
+            MoneySent moneySent = new(transactionId, req.Amount);
+            MoneyReceived moneyReceived = new(transactionId, req.Amount);
 
-            // store tranfer event on both stream
-            fromStream.AppendOne(moneyTransfered);
-            toStream.AppendOne(moneyTransfered);
+            fromStream.AppendOne(moneySent);
+            toStream.AppendOne(moneyReceived);
 
             await session.SaveChangesAsync(ct);
         }

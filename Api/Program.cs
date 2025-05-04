@@ -42,7 +42,8 @@ builder.Services.AddMarten(options =>
     options.Events.AddEventType<AccountCreated>();
     options.Events.AddEventType<MoneyDeposited>();
     options.Events.AddEventType<MoneyWithdrawn>();
-    options.Events.AddEventType<MoneyTransfered>();
+    options.Events.AddEventType<MoneySent>();
+    options.Events.AddEventType<MoneyReceived>();
     options.Events.AddEventType<AccountClosed>();
 
     // Specify that we want to use STJ as our serializer
@@ -56,10 +57,8 @@ builder.Services.AddMarten(options =>
     }
 
     options.Projections.Add<BankAccountProjection>(ProjectionLifecycle.Inline);
-    options.Projections.Add<UserAccountsProjection>(ProjectionLifecycle.Inline);
     //options.Projections.Add<BankAccountTransactionsProjection>(ProjectionLifecycle.Inline);
     // Register the Movie document
-    options.Schema.For<UserAccounts>().Identity(x => x.UserId);  // required cause index name should be id/Id
     options.Schema.For<BankAccount>().Identity(x => x.Id);
 })
     .UseLightweightSessions();

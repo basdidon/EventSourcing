@@ -18,25 +18,21 @@ namespace Api.Tests.Integration.Tests
         {
             await base.SeedDb();
 
-            fromAccountId = Guid.NewGuid();
             AccountCreated accountCreated = new(
-                fromAccountId,
-                GetSeedUserId("teller"),
                 GetSeedUserId("customer01"),
+                GetSeedUserId("teller"),
                 "xxx-xxxxxx-x",
                 1000
             );
-            session.Events.StartStream<BankAccount>(fromAccountId, accountCreated);
+            fromAccountId = session.Events.StartStream<BankAccount>(accountCreated).Id;
 
-            toAccountId = Guid.NewGuid();
             AccountCreated accountCreated_2 = new(
-                toAccountId,
-                GetSeedUserId("teller"),
                 GetSeedUserId("customer02"),
+                GetSeedUserId("teller"),
                 "xxx-xxxxxx-x",
                 0
             );
-            session.Events.StartStream<BankAccount>(toAccountId, accountCreated_2);
+            toAccountId = session.Events.StartStream<BankAccount>(accountCreated_2).Id;
 
             await session.SaveChangesAsync();
 

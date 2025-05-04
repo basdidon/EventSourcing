@@ -7,6 +7,7 @@ namespace Api.Features.Accounts.FreezeAccount
         [FromClaim("UserId")]
         public Guid AdminId { get; set; }
 
+        [RouteParam]
         public Guid AccountId { get; set; }
     }
 }

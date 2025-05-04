@@ -19,16 +19,14 @@ namespace Api.Tests.Integration.Tests
         {
             await base.SeedDb();
 
-            accountId = Guid.NewGuid();
             AccountCreated accountCreated = new(
-                accountId,
-                GetSeedUserId("teller"),
                 GetSeedUserId("customer01"),
+                GetSeedUserId("teller"),
                 "xxx-xxxxxx-x",
                 1000
             );
 
-            session.Events.StartStream<BankAccount>(accountId, accountCreated);
+            accountId = session.Events.StartStream<BankAccount>(accountCreated).Id;
             await session.SaveChangesAsync();
         }
 

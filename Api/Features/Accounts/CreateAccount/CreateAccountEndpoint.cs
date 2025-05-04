@@ -21,7 +21,6 @@ namespace Api.Features.Accounts.CreateAccount
 
         public override async Task HandleAsync(CreateAccountRequest req, CancellationToken ct)
         {
-            var accountId = Guid.NewGuid();
             var accountNumber = "xxx-xxxxxx-x";
 
             // ensure CustomerId should exists
@@ -41,7 +40,7 @@ namespace Api.Features.Accounts.CreateAccount
                 return;
             }
 
-            session.Events.StartStream(accountId, new AccountCreated(accountId, req.UserId, req.CustomerId, accountNumber, req.InitialBalance));
+            var accountId = session.Events.StartStream(new AccountCreated(req.CustomerId, req.UserId, accountNumber, req.InitialBalance)).Id;
             await session.SaveChangesAsync(ct);
 
             // send response

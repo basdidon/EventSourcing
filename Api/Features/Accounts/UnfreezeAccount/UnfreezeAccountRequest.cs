@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Features.Accounts.UnfreezeAccount
 {
@@ -8,6 +9,7 @@ namespace Api.Features.Accounts.UnfreezeAccount
         [FromClaim("UserId")]
         public Guid AdminId { get; set; }
 
+        [FromRoute]
         public Guid AccountId { get; set; }
     }
 }

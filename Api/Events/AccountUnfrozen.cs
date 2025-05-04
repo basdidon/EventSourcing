@@ -2,5 +2,5 @@
 
 namespace Api.Events
 {
-    public record AccountUnfrozen(Guid AccountId,Guid OwnerId,Guid ProcessedBy):UserEvent(OwnerId);
+    public record AccountUnfrozen(Guid ProcessedBy);
 }

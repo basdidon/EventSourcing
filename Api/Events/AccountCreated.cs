@@ -3,10 +3,9 @@
 namespace Api.Events
 {
     public record AccountCreated(
-        Guid AccountId,
-        Guid CreateBy,
         Guid OwnerId,
+        Guid CreateBy,
         string AccountNumber,
         decimal InitialBalance
-        ) : UserEvent(OwnerId);
+        );
 }

@@ -33,9 +33,7 @@ namespace Api.Features.Accounts.Deposit
                 return;
             }
 
-            var ownerId = account.OwnerId;
-
-            stream.AppendOne(new MoneyDeposited(req.AccountId, req.UserId, ownerId, req.Amount));
+            stream.AppendOne(new MoneyDeposited( req.Amount, req.UserId));
             await session.SaveChangesAsync(ct);
 
             await SendOkAsync(ct);

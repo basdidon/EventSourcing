@@ -1,7 +1,5 @@
 ﻿namespace Api.Const
 {
-
-
     public static class Role
     {
         public const string Admin = "Admin";

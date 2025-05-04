@@ -20,7 +20,7 @@ namespace Api.Features.Accounts.GetAccountById
             {
                 await SendNotFoundAsync(ct);
             }
-            else if (!User.IsInRole("Admin") || !User.IsInRole("Teller") || account.OwnerId != req.UserId)
+            else if (!User.IsInRole("Admin") && !User.IsInRole("Teller") && account.OwnerId != req.UserId)
             {
                 await SendForbiddenAsync(ct);
             }

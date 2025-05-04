@@ -33,7 +33,7 @@ namespace Api.Features.Accounts.UnfreezeAccount
                 return;
             }
 
-            var e = new AccountUnfrozen(req.AccountId, account.OwnerId, req.AdminId);
+            var e = new AccountUnfrozen(req.AdminId);
             stream.AppendOne(e);
             await session.SaveChangesAsync(ct);
         }

@@ -99,15 +99,14 @@ namespace Api.Tests.Integration
                     options.Events.AddEventType<AccountCreated>();
                     options.Events.AddEventType<MoneyDeposited>();
                     options.Events.AddEventType<MoneyWithdrawn>();
-                    options.Events.AddEventType<MoneyTransfered>();
+                    options.Events.AddEventType<MoneySent>();
+                    options.Events.AddEventType<MoneyReceived>();
                     options.Events.AddEventType<AccountClosed>();
 
                     // Only add projections if your tests depend on them
                     options.Projections.Add<BankAccountProjection>(ProjectionLifecycle.Inline);
-                    options.Projections.Add<UserAccountsProjection>(ProjectionLifecycle.Inline);
 
                     // Register schema objects if your tests involve these entities
-                    options.Schema.For<UserAccounts>().Identity(x => x.UserId);
                     options.Schema.For<BankAccount>().Identity(x => x.Id);
                 })
                 .UseLightweightSessions();

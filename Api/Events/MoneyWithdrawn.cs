@@ -2,10 +2,5 @@
 
 namespace Api.Events
 {
-    public record MoneyWithdrawn(
-        Guid AccountId,
-        Guid ProcessedBy,
-        Guid OwnerId,
-        decimal Amount
-        ) : UserEvent(OwnerId);
+    public record MoneyWithdrawn(decimal Amount,Guid ProcessedBy);
 }
