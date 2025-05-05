@@ -1,5 +1,6 @@
 ﻿using Api.Events;
 using Api.Features.Accounts;
+using Api.Features.Accounts.Withdraw;
 using Api.Features.Accounts.Withdraw.Confirm;
 using Api.Features.Accounts.Withdraw.Request;
 using Api.Tests.Integration.Tests.Abstract;
@@ -45,14 +46,17 @@ namespace Api.Tests.Integration.Tests
             await LoginBySeedUserAsync("teller");
             var res = await client.PostAsJsonAsync(GetWithdrawEndpoint(accountId), body);
             res.EnsureSuccessStatusCode();
+            var responseData = await res.Content.ReadFromJsonAsync<WithdrawResponse>();
+            var requestId = responseData?.RequestId;
+            Assert.NotNull(requestId);
 
-            var withdrawal = context.Withdrawals.FirstOrDefault();
+            var withdrawal = await session.LoadAsync<Withdrawal>(requestId);
             Assert.NotNull(withdrawal);
             var confirmBody = new WithdrawConfirmRequest()
             {
                 Otp = withdrawal.Otp
             };
-            var confirmRes = await client.PostAsJsonAsync(GetConfirmEndpoint(withdrawal.Id), confirmBody);
+            var confirmRes = await client.PostAsJsonAsync(GetConfirmEndpoint(withdrawal.RequestId), confirmBody);
             confirmRes.EnsureSuccessStatusCode();
 
             // Assert

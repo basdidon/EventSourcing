@@ -15,6 +15,7 @@ using Respawn;
 using System.Data.Common;
 using Testcontainers.PostgreSql;
 using Api.Features.Accounts;
+using Api.Features.Accounts.Withdraw;
 
 namespace Api.Tests.Integration
 {
@@ -88,7 +89,7 @@ namespace Api.Tests.Integration
                 });
                 services.EnsureDbCreated<ApplicationDbContext>();
 
-                services.RemoveAll(typeof(IDocumentStore));
+                services.RemoveAll<IDocumentStore>();
                 services.AddMarten(options =>
                 {
                     options.Connection(martenDbContainer.GetConnectionString()); // Use the test DB
@@ -102,12 +103,19 @@ namespace Api.Tests.Integration
                     options.Events.AddEventType<MoneySent>();
                     options.Events.AddEventType<MoneyReceived>();
                     options.Events.AddEventType<AccountClosed>();
+                    options.Events.AddEventType<WithdrawRequested>();
+                    options.Events.AddEventType<WithdrawConfirmed>();
+                    options.Events.AddEventType<WithdrawRejected>();
+                    options.Events.AddEventType<WithdrawRevocked>();
 
                     // Only add projections if your tests depend on them
                     options.Projections.Add<BankAccountProjection>(ProjectionLifecycle.Inline);
+                    options.Projections.Add<WithdrawalProjection>(ProjectionLifecycle.Inline);
+
 
                     // Register schema objects if your tests involve these entities
                     options.Schema.For<BankAccount>().Identity(x => x.Id);
+                    options.Schema.For<Withdrawal>().Identity(x => x.RequestId);
                 })
                 .UseLightweightSessions();
             });

@@ -52,6 +52,28 @@ namespace Api.Tests.Integration.Tests
             Assert.Equal(1500, account.Balance);
         }
 
+
+        [Fact]
+        public async Task Deposit_With_Nagative_Amount_Should_Failed()
+        {
+            await SeedDb();
+
+            // Arrange
+            var body = new DepositRequest()
+            {
+                Amount = -500
+            };
+
+            // Act
+            await LoginBySeedUserAsync("teller");
+            await client.PostAsJsonAsync(GetDepositEndpoint(accountId), body);
+
+            // Assert
+            var account = await session.Events.AggregateStreamAsync<BankAccount>(accountId);
+            Assert.NotNull(account);
+            Assert.Equal(1000, account.Balance);
+        }
+
         [Fact]
         public async Task Deposit_To_Frozen_Account_Should_Failed()
         {

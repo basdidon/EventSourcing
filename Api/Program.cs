@@ -3,7 +3,7 @@ using Api.Events;
 using Api.Events.User;
 using Api.Extensions;
 using Api.Features.Accounts;
-using Api.Features.Accounts.ListAccounts;
+using Api.Features.Accounts.Withdraw;
 using Api.Features.Users;
 using Api.Features.Users.Auth.RefreshToken;
 using Api.Persistance;
@@ -11,6 +11,7 @@ using Api.Services;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using JasperFx.Core;
 using Marten;
 using Marten.Events.Projections;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,6 +39,10 @@ builder.Services.AddMarten(options =>
     // Establish the connection string to your Marten database
     options.Connection(builder.Configuration.GetConnectionString("Marten")!);
 
+    // Turn on the PostgreSQL table partitioning for
+    // hot/cold storage on archived events
+    options.Events.UseArchivedStreamPartitioning = true;
+
     options.Events.AddEventType<UserRegistered>();
     options.Events.AddEventType<AccountCreated>();
     options.Events.AddEventType<MoneyDeposited>();
@@ -45,6 +50,10 @@ builder.Services.AddMarten(options =>
     options.Events.AddEventType<MoneySent>();
     options.Events.AddEventType<MoneyReceived>();
     options.Events.AddEventType<AccountClosed>();
+    options.Events.AddEventType<WithdrawRequested>();
+    options.Events.AddEventType<WithdrawConfirmed>();
+    options.Events.AddEventType<WithdrawRejected>();
+    options.Events.AddEventType<WithdrawRevocked>();
 
     // Specify that we want to use STJ as our serializer
     options.UseSystemTextJsonForSerialization();
@@ -57,9 +66,11 @@ builder.Services.AddMarten(options =>
     }
 
     options.Projections.Add<BankAccountProjection>(ProjectionLifecycle.Inline);
+    options.Projections.Add<WithdrawalProjection>(ProjectionLifecycle.Inline);
     //options.Projections.Add<BankAccountTransactionsProjection>(ProjectionLifecycle.Inline);
     // Register the Movie document
     options.Schema.For<BankAccount>().Identity(x => x.Id);
+    options.Schema.For<Withdrawal>().Identity(x => x.RequestId);
 })
     .UseLightweightSessions();
 
@@ -82,8 +93,7 @@ builder.Services
     .Configure<JwtCreationOptions>(o => o.SigningKey = signingKey!)
    .AddAuthenticationJwtBearer(s => s.SigningKey = signingKey!)
    .AddAuthorization()
-   .AddFastEndpoints(
-    )
+   .AddFastEndpoints(o=>o.IncludeAbstractValidators = true)
    .SwaggerDocument(o =>
    {
        o.MaxEndpointVersion = 1;

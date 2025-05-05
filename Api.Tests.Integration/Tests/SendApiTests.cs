@@ -66,5 +66,32 @@ namespace Api.Tests.Integration.Tests
             Assert.Equal(200,toAccount.Balance);
         }
 
+        [Fact]
+        public async Task Send_Money_With_Nagative_Amount_Should_Failed()
+        {
+            await SeedDb();
+
+            // Arrange
+            decimal amount = -200;
+            var body = new SendRequest()
+            {
+                ToAccountId = toAccountId,
+                Amount = amount,
+            };
+
+            // Act
+            await LoginBySeedUserAsync("customer01");
+            await client.PostAsJsonAsync(GetSendEndpoint(fromAccountId), body);
+
+            // Assert
+            var fromAccount = await session.Events.AggregateStreamAsync<BankAccount>(fromAccountId);
+            var toAccount = await session.Events.AggregateStreamAsync<BankAccount>(toAccountId);
+
+            Assert.NotNull(fromAccount);
+            Assert.Equal(1000, fromAccount.Balance);
+            Assert.NotNull(toAccount);
+            Assert.Equal(0, toAccount.Balance);
+        }
+
     }
 }

@@ -1,19 +1,15 @@
 ﻿using Api.Const;
+using Api.Events;
 using Api.Persistance;
 using Api.Services;
 using FastEndpoints;
 using Marten;
+using Marten.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Api.Features.Accounts.Withdraw.Request
 {
-
-    public class WithdrawResponse
-    {
-        public Guid RequestId { get; set; }
-    }
-
-    public class WithdrawEndpoint(IDocumentSession session, ApplicationDbContext context, OtpService otpService, SmsService smsService) : Endpoint<WithdrawRequest,WithdrawResponse>
+    public class WithdrawEndpoint(IDocumentSession session, OtpService otpService, SmsService smsService) : Endpoint<WithdrawRequest,WithdrawResponse>
     {
         public override void Configure()
         {
@@ -24,13 +20,6 @@ namespace Api.Features.Accounts.Withdraw.Request
 
         public override async Task HandleAsync(WithdrawRequest req, CancellationToken ct)
         {
-            /// TODO:
-            /// - ensure account is exists
-            /// - ensure account balance is enough
-            /// - generate opt
-            /// - create WithdrawRequest
-            /// - send opt to account's owner
-
             var account = await session.LoadAsync<BankAccount>(req.AccountId, ct);
             if (account is null)
             {
@@ -52,23 +41,26 @@ namespace Api.Features.Accounts.Withdraw.Request
                 return;
             }
 
-            string optCode = otpService.GenerateOTP();
+            var toRevockIds = session.Query<Withdrawal>()
+                .Where(x =>
+                    x.AccountId == req.AccountId && x.IsSuccess == false && x.IsRevocked == false)
+                .Select(x => x.RequestId);
 
-            WithdrawalRequest request = new()
+            foreach(var toRevockId in toRevockIds)
             {
-                AccountId = req.AccountId,
-                Amount = req.Amount,
-                ExpiryDate = DateTime.UtcNow.AddMinutes(15),
-                Otp = optCode,
-                Retry = 5,
-            };
+                session.Events.Append(toRevockId, new WithdrawRevocked(),new Archived("Revoked due to a new withdrawal request by the user"));
+            }
 
-            await context.Withdrawals.AddAsync(request, ct);
-            await context.SaveChangesAsync(ct);
 
-            await smsService.SendOtpAsync("xxx-xxx-xxxx", optCode);
+            string otpCode = otpService.GenerateOTP();
 
-            await SendAsync(new WithdrawResponse() { RequestId = request.Id },cancellation: ct);
+            WithdrawRequested requested = new(req.AccountId,req.Amount,otpCode,DateTimeOffset.UtcNow.AddMinutes(15),5,req.UserId);
+            var requestId = session.Events.StartStream(requested).Id;
+            await session.SaveChangesAsync(ct);
+
+            await smsService.SendOtpAsync("xxx-xxx-xxxx", otpCode);
+
+            await SendAsync(new WithdrawResponse() { RequestId = requestId },cancellation: ct);
         }
     }
 }

@@ -10,8 +10,6 @@ namespace Api.Persistance
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
-        public DbSet<WithdrawalRequest> Withdrawals { get; set; }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfiguration(new RefreshTokenConfiguration());

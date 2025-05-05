@@ -1,14 +1,14 @@
 ﻿using Api.Const;
 using Api.Events;
-using Api.Persistance;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Marten;
+using Marten.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Api.Features.Accounts.Withdraw.Confirm
 {
-    public class WithdrawConfirmEndpoint(ApplicationDbContext context,IDocumentSession session):Endpoint<WithdrawConfirmRequest>
+    public class WithdrawConfirmEndpoint(IDocumentSession session):Endpoint<WithdrawConfirmRequest>
     {
         public override void Configure()
         {
@@ -20,15 +20,17 @@ namespace Api.Features.Accounts.Withdraw.Confirm
 
         public override async Task HandleAsync(WithdrawConfirmRequest req, CancellationToken ct)
         {
-            var withdrawalRequest = await context.Withdrawals.FindAsync([req.RequestId], ct);
-            if (withdrawalRequest is null) 
+            var withdrawalStream = await session.Events.FetchForWriting<Withdrawal>(req.RequestId, ct);
+            var withdrawal = withdrawalStream.Aggregate; 
+            
+            if(withdrawalStream is null)
             {
                 await SendNotFoundAsync(ct);
                 return;
             }
 
             // ensure request not revocked
-            if (withdrawalRequest.IsRevocked)
+            if (withdrawal.IsRevocked)
             {
                 AddError("The request has been revoked and cannot be used again.");
                 await SendErrorsAsync(410,ct);
@@ -36,7 +38,7 @@ namespace Api.Features.Accounts.Withdraw.Confirm
             }
 
             // reject repeat use request that success
-            if (withdrawalRequest.IsSuccess)
+            if (withdrawal.IsSuccess)
             {
                 AddError("This request has already been processed and cannot be invoked again.");
                 await SendErrorsAsync(410,ct);
@@ -44,27 +46,29 @@ namespace Api.Features.Accounts.Withdraw.Confirm
             }
 
             // expired check
-            if(withdrawalRequest.ExpiryDate < DateTime.UtcNow)
+            if(withdrawal.ExpiryDate < DateTimeOffset.UtcNow)
             {
                 AddError("This request has already been expired.");
                 await SendErrorsAsync(410, ct);
             }
 
             // ensure opt is match
-            if(withdrawalRequest.Otp != req.Otp)
+            if(withdrawal.Otp != req.Otp)
             {
-                withdrawalRequest.Retry--;
+                withdrawalStream.AppendOne(new WithdrawRejected());
                 
-                if(withdrawalRequest.Retry <= 0)
+                if(withdrawal.Retry <= 1)
                 {
-                    await RevockWithdrawalRequest(withdrawalRequest, ct);
+                    withdrawalStream.AppendOne(new WithdrawRevocked());
+                    withdrawalStream.AppendOne(new Archived("Maximum OTP retry attempts exceeded."));
+                    await session.SaveChangesAsync(ct);
 
                     AddError("Maximum OTP retry attempts exceeded. The request has been revoked and cannot be processed.");
                     await SendErrorsAsync(403,ct);
                     return;
                 }
-                
-                await context.SaveChangesAsync(ct);
+
+                await session.SaveChangesAsync(ct);
 
                 AddError("Invalid OTP. Please try again.");
                 await SendErrorsAsync(400,ct);
@@ -72,11 +76,13 @@ namespace Api.Features.Accounts.Withdraw.Confirm
             }
 
             // account should exists
-            var stream = await session.Events.FetchForWriting<BankAccount>(withdrawalRequest.AccountId,ct);
-            var account = stream.Aggregate;
+            var accountStream = await session.Events.FetchForWriting<BankAccount>(withdrawal.AccountId,ct);
+            var account = accountStream.Aggregate;
             if(account is null)
             {
-                await RevockWithdrawalRequest(withdrawalRequest, ct);
+                withdrawalStream.AppendOne(new WithdrawRevocked());
+                withdrawalStream.AppendOne(new Archived("Account notfound."));
+                await session.SaveChangesAsync(ct);
 
                 await SendNotFoundAsync(ct);
                 return;
@@ -84,7 +90,9 @@ namespace Api.Features.Accounts.Withdraw.Confirm
 
             if (account.IsFrozen)
             {
-                await RevockWithdrawalRequest(withdrawalRequest, ct);
+                withdrawalStream.AppendOne(new WithdrawRevocked());
+                withdrawalStream.AppendOne(new Archived("account is frozen."));
+                await session.SaveChangesAsync(ct);
 
                 AddError("account is frozen.");
                 await SendErrorsAsync(409, ct);
@@ -92,24 +100,21 @@ namespace Api.Features.Accounts.Withdraw.Confirm
             }
 
             // ensure sufficient funds
-            if (account.Balance < withdrawalRequest.Amount)
+            if (account.Balance < withdrawal.Amount)
             {
-                await RevockWithdrawalRequest(withdrawalRequest, ct);
+                withdrawalStream.AppendOne(new WithdrawRevocked());
+                withdrawalStream.AppendOne(new Archived("insufficient funds."));
+                await session.SaveChangesAsync(ct);
 
                 AddError("insufficient funds.");
                 await SendErrorsAsync(400,ct);
             }
 
             // Process
-            stream.AppendOne(new MoneyWithdrawn(withdrawalRequest.Amount,req.UserId));
+            withdrawalStream.AppendOne(new WithdrawConfirmed());
+            withdrawalStream.AppendOne(new Archived("successful."));
+            accountStream.AppendOne(new MoneyWithdrawn(withdrawal.Amount,req.UserId));
             await session.SaveChangesAsync(ct);
         }
-
-        private async Task RevockWithdrawalRequest(WithdrawalRequest request,CancellationToken ct)
-        {
-            request.IsRevocked = true;
-            await context.SaveChangesAsync(ct);
-        }
-
     }
 }
