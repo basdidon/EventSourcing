@@ -6,5 +6,7 @@ namespace Api.Features.Accounts.ListAccounts
     {
         [FromClaim]
         public Guid UserId { get; set; }
+
+        public Guid? OwnerId { get; set; } 
     }
 }

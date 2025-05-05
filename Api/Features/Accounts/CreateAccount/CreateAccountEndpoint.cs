@@ -32,7 +32,7 @@ namespace Api.Features.Accounts.CreateAccount
             }
 
             // Role validate
-            var isCustomer = await userManager.IsInRoleAsync(customer, Role.Customer.ToString());
+            var isCustomer = await userManager.IsInRoleAsync(customer, Role.Customer);
             if (!isCustomer)
             {
                 AddError(x => x.CustomerId, "Customer with customerId is not in Customer role");
