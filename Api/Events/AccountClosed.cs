@@ -1,6 +1,4 @@
-﻿using Api.Events.User;
-
-namespace Api.Events
+﻿namespace Api.Events
 {
     public record AccountClosed();
 }

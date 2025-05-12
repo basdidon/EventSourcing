@@ -1,6 +1,7 @@
 ﻿using Api.Const;
 using FastEndpoints;
 using Marten;
+using Marten.Pagination;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Api.Features.Accounts.ListAccounts
@@ -17,38 +18,34 @@ namespace Api.Features.Accounts.ListAccounts
 
         public override async Task HandleAsync(ListAccountsRequest req, CancellationToken ct)
         {
-            IReadOnlyList<BankAccount>? accounts;
-            if (req.OwnerId is not null)
-            {
-                if (!User.IsInRole(Role.Admin) && !User.IsInRole(Role.Teller))
-                {
-                    await SendForbiddenAsync(ct);
-                    return;
-                }
+            bool IsProvidedOwner = req.OwnerId is not null;
+            bool IsTellerOrAdmin = User.IsInRole(Role.Teller) || User.IsInRole(Role.Admin);
 
-                accounts = await session.Query<BankAccount>()
-                    .Where(x => x.OwnerId == req.OwnerId)
-                    .ToListAsync(ct);
-            }
-            else if (User.IsInRole(Role.Teller) || User.IsInRole(Role.Admin))
+            if (!IsTellerOrAdmin && !IsProvidedOwner)
             {
-                accounts = await session.Query<BankAccount>()
-                    .ToListAsync(ct);
-            }
-            else
-            {
-                accounts = await session.Query<BankAccount>()
+                // regular user list thier owned bank accounts
+                Response = await session.Query<BankAccount>()
                     .Where(x => x.OwnerId == req.UserId)
-                    .ToListAsync(ct);
+                    .ToPagedListAsync(req.Page, req.PageSize, ct);                
             }
-
-            if (accounts is null)
+            else if(!IsTellerOrAdmin && IsProvidedOwner)
             {
-                await SendNotFoundAsync(ct);
+                // regular user cannot access bank account that owned by other
+                await SendForbiddenAsync(ct);
+                return;
+            }
+            else if(IsTellerOrAdmin & IsProvidedOwner)
+            {
+                // Teller Or Admin get specific Account
+                Response = await session.Query<BankAccount>()
+                    .Where(x => x.OwnerId == req.OwnerId)
+                    .ToPagedListAsync(req.Page, req.PageSize, ct);                
             }
             else
             {
-                await SendAsync(accounts, cancellation: ct);
+                // Teller or Admin retrieve all bank account with pagination supported
+                Response = await session.Query<BankAccount>()
+                    .ToPagedListAsync(req.Page, req.PageSize, ct);
             }
         }
     }

@@ -36,7 +36,7 @@ namespace Api.Features.Accounts.CreateAccount
             if (!isCustomer)
             {
                 AddError(x => x.CustomerId, "Customer with customerId is not in Customer role");
-                await SendErrorsAsync(403, ct);
+                await SendErrorsAsync(400, ct);
                 return;
             }
 
